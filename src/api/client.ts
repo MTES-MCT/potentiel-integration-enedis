@@ -1,0 +1,48 @@
+import { getAccessToken } from "./auth.js";
+import { getAllDossiers } from "./getAllDossiers.js";
+import {
+  modifierReferenceDossier,
+  ModifierReferenceDossierProps,
+} from "./modifierReferenceDossier.js";
+import {
+  transmettreDateDeMiseEnService,
+  TransmettreDateDeMiseEnServiceProps,
+} from "./transmettreDateMiseEnService.js";
+
+type GetApiClientProps = {
+  apiUrl: string;
+  clientId: string;
+  clientSecret: string;
+  issuerUrl: string;
+};
+
+export async function getApiClient({
+  apiUrl,
+  clientId,
+  clientSecret,
+  issuerUrl,
+}: GetApiClientProps) {
+  const accessToken = await getAccessToken({
+    clientId,
+    clientSecret,
+    issuerUrl,
+  });
+  const authorizationHeader = `Bearer ${accessToken}`;
+  return {
+    raccordement: {
+      getAllDossiers: () => getAllDossiers({ authorizationHeader, apiUrl }),
+      transmettreDateDeMiseEnService: (
+        props: TransmettreDateDeMiseEnServiceProps
+      ) =>
+        transmettreDateDeMiseEnService({
+          ...props,
+          apiUrl,
+          authorizationHeader,
+        }),
+      modifierReferenceDossier: (props: ModifierReferenceDossierProps) =>
+        modifierReferenceDossier({ ...props, apiUrl, authorizationHeader }),
+    },
+  };
+}
+
+export type ApiClient = Awaited<ReturnType<typeof getApiClient>>;
