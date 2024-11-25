@@ -25,7 +25,13 @@ export async function exportToS3({
     return;
   }
   logger.info(`📁 ${dossiers.length} dossiers en attente`);
-  const csvData = await getDataAsCsv({ data: dossiers });
+  const csvData = await getDataAsCsv({
+    data: dossiers.map((dossier) => ({
+      ...dossier,
+      dateMiseEnService: "",
+      nouvelleReference: "",
+    })),
+  });
 
   await s3Client.upload(fileName, csvData);
 
