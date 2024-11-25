@@ -31,6 +31,7 @@ export async function getAllDossiers({
   let page = 1;
   while (page < 100) {
     url.searchParams.set("page", String(page));
+    url.searchParams.set("avecDateMiseEnService", "false");
     const response = await fetch(url, {
       headers: { Authorization: authorizationHeader },
     });
