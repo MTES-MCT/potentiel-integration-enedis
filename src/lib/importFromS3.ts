@@ -32,6 +32,11 @@ export async function importFromS3({
   const logger = getLogger();
   const files = await s3Client.list(folderName);
 
+  if (files.length === 0) {
+    logger.info(`⛔ Aucun ficher trouvé`);
+    return;
+  }
+
   const errors: { identifiantProjet: string }[] = [];
   let nbDatesTransmises = 0;
   let nbReferencesCorrigées = 0;
