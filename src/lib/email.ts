@@ -33,8 +33,9 @@ export async function sendEmailNotificationsForAvailableFile({
     body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json",
-      Authorization:
-        "Basic " + Buffer.from(username + ":" + password).toString("base64"),
+      Authorization: `Basic ${Buffer.from(`${username}:${password}`).toString(
+        "base64",
+      )}`,
     },
   });
   if (!response.ok) {

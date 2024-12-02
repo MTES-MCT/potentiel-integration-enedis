@@ -1,15 +1,15 @@
 import { getApiClient } from "./lib/api/client.js";
 import { parseConfig } from "./lib/config.js";
-import { getS3Client } from "./lib/s3.js";
-import { getLogger } from "./lib/logger.js";
-import { exportToS3 } from "./lib/exportToS3.js";
 import { sendEmailNotificationsForAvailableFile } from "./lib/email.js";
+import { exportToS3 } from "./lib/exportToS3.js";
 import { getHealthcheckClient } from "./lib/healthcheck.js";
+import { getLogger } from "./lib/logger.js";
+import { getS3Client } from "./lib/s3.js";
 
 async function main() {
   const logger = getLogger();
   logger.info(
-    `🚩 Démarrage de l'export des données de raccordement pour Enedis`
+    `🚩 Démarrage de l'export des données de raccordement pour Enedis`,
   );
 
   const config = parseConfig();
@@ -49,6 +49,6 @@ async function main() {
   }
 
   await healthcheckClient.success();
-  logger.info(`🏁 Script terminé avec succès`);
+  logger.info("🏁 Script terminé avec succès");
 }
 void main();

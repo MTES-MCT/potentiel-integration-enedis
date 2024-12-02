@@ -1,5 +1,5 @@
+import { basename, dirname, join } from "node:path";
 import { S3 } from "@aws-sdk/client-s3";
-import { basename, dirname, join } from "path";
 
 export type UploadToS3Props = {
   accessKey: string;
@@ -45,7 +45,7 @@ export async function getS3Client({
       }
       return Contents.reduce(
         (prev, file) => (file.Key ? prev.concat(file.Key) : prev),
-        [] as string[]
+        [] as string[],
       );
     },
     download: async (filename: string) => {
@@ -63,9 +63,9 @@ export async function getS3Client({
         Bucket: bucketName,
         CopySource: `${bucketName}/${filename}`,
         Key: join(
-          `_archives`,
+          "`_archives",
           dirname(filename),
-          `${new Date().toISOString()}_${basename(filename)}`
+          `${new Date().toISOString()}_${basename(filename)}`,
         ),
       });
       await s3Client.deleteObject({

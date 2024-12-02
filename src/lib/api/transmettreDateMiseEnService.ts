@@ -13,7 +13,11 @@ export async function transmettreDateDeMiseEnService({
   dateMiseEnService,
   identifiantProjet,
 }: TransmettreDateDeMiseEnServiceProps & ApiClientProps) {
-  const url = `${apiUrl}/laureats/${encodeURIComponent(identifiantProjet)}/raccordements/${encodeURIComponent(reference)}/date-mise-en-service:transmettre`;
+  const url = `${apiUrl}/laureats/${encodeURIComponent(
+    identifiantProjet,
+  )}/raccordements/${encodeURIComponent(
+    reference,
+  )}/date-mise-en-service:transmettre`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -25,7 +29,9 @@ export async function transmettreDateDeMiseEnService({
   });
   if (!response.ok) {
     throw new Error(
-      `HTTP Error querying ${url}: ${response.status} ${response.statusText} (${await response.text()})`
+      `HTTP Error querying ${url}: ${response.status} ${
+        response.statusText
+      } (${await response.text()})`,
     );
   }
 }

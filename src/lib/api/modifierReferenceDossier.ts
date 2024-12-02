@@ -13,7 +13,9 @@ export async function modifierReferenceDossier({
   nouvelleReference,
   identifiantProjet,
 }: ModifierReferenceDossierProps & ApiClientProps) {
-  const url = `${apiUrl}/laureats/${encodeURIComponent(identifiantProjet)}/raccordements/${encodeURIComponent(reference)}/reference:modifier`;
+  const url = `${apiUrl}/laureats/${encodeURIComponent(
+    identifiantProjet,
+  )}/raccordements/${encodeURIComponent(reference)}/reference:modifier`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
@@ -23,7 +25,9 @@ export async function modifierReferenceDossier({
   });
   if (!response.ok) {
     throw new Error(
-      `HTTP Error querying ${url}: ${response.status} ${response.statusText} (${await response.text()})`
+      `HTTP Error querying ${url}: ${response.status} ${
+        response.statusText
+      } (${await response.text()})`,
     );
   }
 }

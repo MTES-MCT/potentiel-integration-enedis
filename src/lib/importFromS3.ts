@@ -1,8 +1,8 @@
-import { type ApiClient } from "./api/client.js";
-import { getCsvAsData } from "./csv.js";
-import { type S3Client } from "./s3.js";
-import { getLogger } from "./logger.js";
 import { z } from "zod";
+import type { ApiClient } from "./api/client.js";
+import { getCsvAsData } from "./csv.js";
+import { getLogger } from "./logger.js";
+import type { S3Client } from "./s3.js";
 
 const schema = z.object({
   identifiantProjet: z.string().min(1),
@@ -13,7 +13,7 @@ const schema = z.object({
     .transform((val) =>
       val
         ? new Date(val.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1")) // 31/12/2020 => 2020-12-31
-        : undefined
+        : undefined,
     ),
   nouvelleReference: z.string().optional(),
 });
@@ -33,7 +33,7 @@ export async function importFromS3({
   const files = await s3Client.list(folderName);
 
   if (files.length === 0) {
-    logger.info(`⛔ Aucun ficher trouvé`);
+    logger.info("⛔ Aucun ficher trouvé");
     return;
   }
 
@@ -49,14 +49,14 @@ export async function importFromS3({
       const { data, success, error } = schema.safeParse(row);
       if (success) {
         if (!data.dateMiseEnService && !data.nouvelleReference) {
-          logger.info(`⏩ Pas d'informations à transmettre`, {
+          logger.info("⏩ Pas d'informations à transmettre", {
             identifiantProjet: data.identifiantProjet,
             reference: data.referenceDossier,
           });
           continue;
         }
         if (data.dateMiseEnService) {
-          logger.info(`🗓  Transmission de la date de MES...`, {
+          logger.info("🗓  Transmission de la date de MES...", {
             identifiantProjet: data.identifiantProjet,
             reference: data.referenceDossier,
           });
@@ -69,7 +69,7 @@ export async function importFromS3({
             nbDatesTransmises++;
           } catch (error) {
             errors.push(data);
-            logger.warn(`❗ Erreur lors de la transmission de la date de MES`, {
+            logger.warn("❗ Erreur lors de la transmission de la date de MES", {
               identifiantProjet: data.identifiantProjet,
               reference: data.referenceDossier,
               error: (error as Error).message,
@@ -77,7 +77,7 @@ export async function importFromS3({
           }
         }
         if (data.nouvelleReference) {
-          logger.info(`🖊  Modification de la référence...`, {
+          logger.info("🖊  Modification de la référence...", {
             identifiantProjet: data.identifiantProjet,
             reference: data.referenceDossier,
             nouvelleReference: data.nouvelleReference,
@@ -91,7 +91,7 @@ export async function importFromS3({
             nbReferencesCorrigées++;
           } catch (error) {
             errors.push(data);
-            logger.warn(`❗ Erreur lors de la modification de la référence`, {
+            logger.warn("❗ Erreur lors de la modification de la référence", {
               identifiantProjet: data.identifiantProjet,
               reference: data.referenceDossier,
               error: (error as Error).message,
@@ -99,12 +99,12 @@ export async function importFromS3({
           }
         }
       } else {
-        logger.warn(`❗ Ligne invalide`, { row, error });
+        logger.warn("❗ Ligne invalide", { row, error });
       }
     }
     await s3Client.archive(filename);
   }
-  logger.info(`✅ Import terminé:`);
+  logger.info("✅ Import terminé:");
   logger.info(`    ${nbDatesTransmises} dates transmises`);
   logger.info(`    ${nbReferencesCorrigées} références corrigées`);
   logger.info(`    ${errors.length} erreurs`);

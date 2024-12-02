@@ -1,14 +1,14 @@
 import { getApiClient } from "./lib/api/client.js";
 import { parseConfig } from "./lib/config.js";
-import { getS3Client } from "./lib/s3.js";
-import { getLogger } from "./lib/logger.js";
-import { importFromS3 } from "./lib/importFromS3.js";
 import { getHealthcheckClient } from "./lib/healthcheck.js";
+import { importFromS3 } from "./lib/importFromS3.js";
+import { getLogger } from "./lib/logger.js";
+import { getS3Client } from "./lib/s3.js";
 
 async function main() {
   const logger = getLogger();
   logger.info(
-    `🚩 Démarrage de l'import des données de raccordement depuis Enedis`
+    `🚩 Démarrage de l'import des données de raccordement depuis Enedis`,
   );
   const config = parseConfig();
   const healthcheckClient = getHealthcheckClient(config.SENTRY_CRONS_IMPORT);
@@ -30,7 +30,7 @@ async function main() {
     });
 
     logger.info(
-      `⬇️  Récupération du fichier d'import des dates de mise en service...`
+      `⬇️  Récupération du fichier d'import des dates de mise en service...`,
     );
     await importFromS3({
       apiClient,
@@ -43,6 +43,6 @@ async function main() {
     process.exit(1);
   }
   await healthcheckClient.success();
-  logger.info(`🏁 Script terminé avec succès`);
+  logger.info("🏁 Script terminé avec succès");
 }
 void main();

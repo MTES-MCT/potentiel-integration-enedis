@@ -2,12 +2,12 @@ import { getLogger } from "../logger.js";
 import { getAccessToken } from "./auth.js";
 import { getAllDossiers } from "./getAllDossiers.js";
 import {
+  type ModifierReferenceDossierProps,
   modifierReferenceDossier,
-  ModifierReferenceDossierProps,
 } from "./modifierReferenceDossier.js";
 import {
+  type TransmettreDateDeMiseEnServiceProps,
   transmettreDateDeMiseEnService,
-  TransmettreDateDeMiseEnServiceProps,
 } from "./transmettreDateMiseEnService.js";
 
 type GetApiClientProps = {
@@ -28,14 +28,14 @@ export async function getApiClient({
     clientSecret,
     issuerUrl,
   });
-  getLogger().info(`🔒 Authentification réussie`);
+  getLogger().info("🔒 Authentification réussie");
 
   const authorizationHeader = `Bearer ${accessToken}`;
   return {
     raccordement: {
       getAllDossiers: () => getAllDossiers({ authorizationHeader, apiUrl }),
       transmettreDateDeMiseEnService: (
-        props: TransmettreDateDeMiseEnServiceProps
+        props: TransmettreDateDeMiseEnServiceProps,
       ) =>
         transmettreDateDeMiseEnService({
           ...props,

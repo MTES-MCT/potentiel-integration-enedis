@@ -19,7 +19,7 @@ export const getAccessToken = async ({
     clientId,
     clientSecret,
     undefined,
-    options
+    options,
   );
   const tokens = await client.clientCredentialsGrant(config, {});
   return tokens.access_token;

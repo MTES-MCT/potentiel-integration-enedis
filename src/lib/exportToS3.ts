@@ -1,7 +1,7 @@
-import { ApiClient } from "./api/client.js";
+import type { ApiClient } from "./api/client.js";
 import { getDataAsCsv } from "./csv.js";
 import { getLogger } from "./logger.js";
-import { S3Client } from "./s3.js";
+import type { S3Client } from "./s3.js";
 
 export type ExportToS3Props = {
   apiClient: ApiClient;
@@ -16,7 +16,7 @@ export async function exportToS3({
 }: ExportToS3Props) {
   const logger = getLogger();
   logger.info(
-    "⬆️  Création du fichier des dossiers en attente de mise en service..."
+    "⬆️  Création du fichier des dossiers en attente de mise en service...",
   );
   const dossiers = await apiClient.raccordement.getAllDossiers();
 

@@ -36,8 +36,9 @@ export async function getAllDossiers({
       headers: { Authorization: authorizationHeader },
     });
     if (!response.ok) {
+      const errBody = await response.text();
       throw new Error(
-        `HTTP Error querying ${url}: ${response.status} ${response.statusText} (${await response.text()})`
+        `HTTP Error querying ${url}: ${response.status} ${response.statusText} (${errBody})`,
       );
     }
     const { items, total } = (await response.json()) as GetAllDossiersResponse;
