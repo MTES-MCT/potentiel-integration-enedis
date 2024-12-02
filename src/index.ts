@@ -4,6 +4,7 @@ import { getS3Client } from "./s3.js";
 import { getLogger } from "./logger.js";
 import { exportToS3 } from "./exportToS3.js";
 import { importFromS3 } from "./importFromS3.js";
+import { sendEmailNotificationsForAvailableFile } from "./email.js";
 
 async function main() {
   const logger = getLogger();
@@ -29,7 +30,15 @@ async function main() {
   try {
     const date = new Date().toISOString().slice(0, 10);
     const fileName = config.UPLOAD_FILE_PATH_TEMPLATE.replace("${date}", date);
-    await exportToS3({ apiClient, s3Client, fileName });
+    const success = await exportToS3({ apiClient, s3Client, fileName });
+    if (success && config.MJ_TEMPLATE_ID) {
+      await sendEmailNotificationsForAvailableFile({
+        username: config.MJ_APIKEY_PUBLIC ?? "",
+        password: config.MJ_APIKEY_PRIVATE ?? "",
+        templateId: config.MJ_TEMPLATE_ID,
+        recipients: config.EMAIL_RECIPIENTS ?? [],
+      });
+    }
   } catch (e) {
     logger.error(`💀 Erreur lors du traitement de l'export:`, e);
     process.exit(1);
