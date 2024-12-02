@@ -2,26 +2,21 @@ import { config } from "dotenv";
 import { z } from "zod";
 
 export const parseConfig = (env = process.env) => {
-  const envVar = (target: z.ZodTypeAny = z.string()) =>
-    z
-      .string()
-      .transform((arg) => readEnvOrAlias(arg, env))
-      .pipe(target);
   const configSchema = z.object({
     // Potentiel API
-    API_URL: envVar(z.string().url()),
+    API_URL: z.string().url(),
     // OAuth configuration
-    ISSUER_URL: envVar(z.string().url()),
-    CLIENT_ID: envVar(),
-    CLIENT_SECRET: envVar(),
+    ISSUER_URL: z.string().url(),
+    CLIENT_ID: z.string(),
+    CLIENT_SECRET: z.string(),
     // S3 configuration
-    S3_ENDPOINT: envVar(z.string().url()),
-    S3_BUCKET: envVar(),
-    S3_REGION: envVar(),
-    S3_ACCESS_KEY: envVar(),
-    S3_SECRET_KEY: envVar(),
-    UPLOAD_FILE_PATH_TEMPLATE: envVar(),
-    DOWNLOAD_FOLDER: envVar(),
+    S3_ENDPOINT: z.string().url(),
+    S3_BUCKET: z.string(),
+    S3_REGION: z.string(),
+    S3_ACCESS_KEY: z.string(),
+    S3_SECRET_KEY: z.string(),
+    UPLOAD_FILE_PATH_TEMPLATE: z.string(),
+    DOWNLOAD_FOLDER: z.string(),
 
     // Emails
     MJ_APIKEY_PUBLIC: z.string().optional(),
@@ -40,17 +35,4 @@ export const parseConfig = (env = process.env) => {
   });
   config();
   return configSchema.parse(env);
-};
-
-/**
- * Enables using aliases in env var.
- * ie `MONGO_URL=$DATABASE_URL`
- * will return the value of `env.DATABASE_URL`
- */
-const readEnvOrAlias = (val: string, env: NodeJS.Dict<string>) => {
-  if (typeof val === "undefined") return;
-  // https://stackoverflow.com/questions/68970312/how-do-i-resolve-a-javascript-template-literal-variable-within-a-string-within-a
-  return val.replace(/\$\{(.*?)\}/g, (substring, key) =>
-    env[key] ? env[key] : substring
-  );
 };
