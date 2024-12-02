@@ -22,6 +22,17 @@ export const parseConfig = (env = process.env) => {
     S3_SECRET_KEY: envVar(),
     UPLOAD_FILE_PATH_TEMPLATE: envVar(),
     DOWNLOAD_FOLDER: envVar(),
+
+    // Emails
+    MJ_APIKEY_PUBLIC: z.string().optional(),
+    MJ_APIKEY_PRIVATE: z.string().optional(),
+    MJ_TEMPLATE_ID: z.coerce.number().optional(),
+
+    EMAIL_RECIPIENTS: z
+      .string()
+      .optional()
+      .transform((val) => (val ? val.split(",") : undefined))
+      .pipe(z.string().trim().email().array().optional()),
   });
   config();
   return configSchema.parse(env);

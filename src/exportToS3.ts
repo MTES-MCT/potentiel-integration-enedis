@@ -22,7 +22,7 @@ export async function exportToS3({
 
   if (dossiers.length === 0) {
     logger.info("⛔ Aucun dossier de raccordement à traiter");
-    return;
+    return false;
   }
   logger.info(`📁 ${dossiers.length} dossiers en attente`);
   const csvData = await getDataAsCsv({
@@ -36,4 +36,5 @@ export async function exportToS3({
   await s3Client.upload(fileName, csvData);
 
   logger.info(`🛎️ Fichier créé: ${fileName}`);
+  return true;
 }
