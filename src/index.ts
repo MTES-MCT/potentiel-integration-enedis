@@ -5,12 +5,16 @@ import { getLogger } from "./logger.js";
 import { exportToS3 } from "./exportToS3.js";
 import { importFromS3 } from "./importFromS3.js";
 import { sendEmailNotificationsForAvailableFile } from "./email.js";
+import { getHealthcheckClient } from "./healthcheck.js";
 
 async function main() {
   const logger = getLogger();
   logger.info(`🚩 Démarrage de la synchronisation avec Enedis`);
 
   const config = parseConfig();
+  const healthcheckClient = getHealthcheckClient(config.SENTRY_CRONS);
+  await healthcheckClient.start();
+
   const s3Client = await getS3Client({
     accessKey: config.S3_ACCESS_KEY,
     secretKey: config.S3_SECRET_KEY,
@@ -41,6 +45,7 @@ async function main() {
     }
   } catch (e) {
     logger.error(`💀 Erreur lors du traitement de l'export:`, e);
+    await healthcheckClient.error();
     process.exit(1);
   }
 
@@ -55,8 +60,10 @@ async function main() {
     });
   } catch (e) {
     logger.error(`💀 Erreur lors du traitement de l'import:`, e);
+    await healthcheckClient.error();
     process.exit(1);
   }
   logger.info(`🏁 Script terminé avec succès`);
+  await healthcheckClient.success();
 }
 void main();

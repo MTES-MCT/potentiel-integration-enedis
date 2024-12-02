@@ -33,6 +33,9 @@ export const parseConfig = (env = process.env) => {
       .optional()
       .transform((val) => (val ? val.split(",") : undefined))
       .pipe(z.string().trim().email().array().optional()),
+
+    // Healthcheck
+    SENTRY_CRONS: z.string().url().optional(),
   });
   config();
   return configSchema.parse(env);
