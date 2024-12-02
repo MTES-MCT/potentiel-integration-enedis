@@ -1,3 +1,4 @@
+import { getLogger } from "../logger.js";
 import { getAccessToken } from "./auth.js";
 import { getAllDossiers } from "./getAllDossiers.js";
 import {
@@ -27,6 +28,8 @@ export async function getApiClient({
     clientSecret,
     issuerUrl,
   });
+  getLogger().info(`🔒 Authentification réussie`);
+
   const authorizationHeader = `Bearer ${accessToken}`;
   return {
     raccordement: {

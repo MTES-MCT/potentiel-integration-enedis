@@ -7,8 +7,10 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint",
-    "start": "node ./dist/index.js",
-    "dev": "tsx ./src/index.ts"
+    "start:import": "node ./dist/import.js",
+    "start:export": "node ./dist/export.js",
+    "dev:import": "tsx ./src/import.ts",
+    "dev:export": "tsx ./src/export.ts"
   },
   "keywords": [],
   "author": "L'équipe Potentiel <team@potentiel.beta.gouv.fr> (https://potentiel.beta.gouv.fr/)",
