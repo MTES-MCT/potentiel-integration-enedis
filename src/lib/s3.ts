@@ -63,7 +63,7 @@ export async function getS3Client({
         Bucket: bucketName,
         CopySource: `${bucketName}/${filename}`,
         Key: join(
-          "`_archives",
+          "_archives",
           dirname(filename),
           `${new Date().toISOString()}_${basename(filename)}`,
         ),

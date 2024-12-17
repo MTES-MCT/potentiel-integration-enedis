@@ -1,0 +1,12 @@
+{
+  "jobs": [
+    {
+      "command": "0 10 * * 1-5 node ./dist/import.js",
+      "size": "M"
+    },
+    {
+      "command": "0 9 1 * * node ./dist/export.js",
+      "size": "M"
+    }
+  ]
+}
