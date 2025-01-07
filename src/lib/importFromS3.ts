@@ -1,3 +1,4 @@
+import { extname } from "node:path";
 import { z } from "zod";
 import type { ApiClient } from "./api/client.js";
 import { getCsvAsData } from "./csv.js";
@@ -42,6 +43,11 @@ export async function importFromS3({
   let nbReferencesCorrigées = 0;
   for (const filename of files) {
     logger.info(`👷 Traitement du fichier ${filename}...`);
+    if (extname(filename) !== ".csv") {
+      logger.warn("⚠️ Extension inconnue, fichier ignoré");
+      await s3Client.archive(filename);
+      continue;
+    }
     const contents = await s3Client.download(filename);
     const rows = getCsvAsData(contents);
     logger.info(`🛠  ${rows.length} lignes à traiter`);
