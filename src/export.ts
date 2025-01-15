@@ -13,7 +13,10 @@ async function main() {
   );
 
   const config = parseConfig();
-  const healthcheckClient = getHealthcheckClient(config.SENTRY_CRONS_EXPORT);
+  const healthcheckClient = getHealthcheckClient(
+    config.SENTRY_CRONS_EXPORT,
+    config.APPLICATION_STAGE,
+  );
   await healthcheckClient.start();
   try {
     const s3Client = await getS3Client({

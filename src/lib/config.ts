@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const parseConfig = (env = process.env) => {
   const configSchema = z.object({
+    APPLICATION_STAGE: z.string().default("local"),
     // Potentiel API
     API_URL: z.string().url(),
     // OAuth configuration

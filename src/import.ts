@@ -11,7 +11,10 @@ async function main() {
     `🚩 Démarrage de l'import des données de raccordement depuis Enedis`,
   );
   const config = parseConfig();
-  const healthcheckClient = getHealthcheckClient(config.SENTRY_CRONS_IMPORT);
+  const healthcheckClient = getHealthcheckClient(
+    config.SENTRY_CRONS_IMPORT,
+    config.APPLICATION_STAGE,
+  );
   await healthcheckClient.start();
   try {
     const s3Client = await getS3Client({
