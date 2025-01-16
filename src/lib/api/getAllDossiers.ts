@@ -29,7 +29,7 @@ export async function getAllDossiers({
   const url = new URL(`${apiUrl}/reseaux/raccordements`);
   const dossiers: DossierRaccordement[] = [];
   let page = 1;
-  while (page < 100) {
+  while (true) {
     url.searchParams.set("page", String(page));
     url.searchParams.set("avecDateMiseEnService", "false");
     const response = await fetch(url, {
