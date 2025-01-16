@@ -1,6 +1,7 @@
 import { extname } from "node:path";
 import { z } from "zod";
 import type { ApiClient } from "./api/client.js";
+import { ApiError } from "./api/error.js";
 import { getCsvAsData } from "./csv.js";
 import { getLogger } from "./logger.js";
 import type { S3Client } from "./s3.js";
@@ -40,6 +41,7 @@ export async function importFromS3({
 
   const errors: { identifiantProjet: string }[] = [];
   let nbDatesTransmises = 0;
+  let nbDatesDejaTransmises = 0;
   let nbReferencesCorrigées = 0;
   for (const filename of files) {
     logger.info(`👷 Traitement du fichier ${filename}...`);
@@ -82,7 +84,10 @@ export async function importFromS3({
             });
           }
         }
-        if (data.nouvelleReference) {
+        if (
+          data.nouvelleReference &&
+          data.referenceDossier !== data.nouvelleReference
+        ) {
           logger.info("🖊  Modification de la référence...", {
             identifiantProjet: data.identifiantProjet,
             reference: data.referenceDossier,
@@ -96,6 +101,13 @@ export async function importFromS3({
             });
             nbReferencesCorrigées++;
           } catch (error) {
+            if (error instanceof ApiError) {
+              if (error.type === "DATE_MISE_EN_SERVICE_DEJA_TRANSMISE") {
+                nbDatesDejaTransmises++;
+                continue;
+              }
+            }
+            // get HTTP body in case the error is an HTTP error
             errors.push(data);
             logger.warn("❗ Erreur lors de la modification de la référence", {
               identifiantProjet: data.identifiantProjet,
@@ -113,6 +125,7 @@ export async function importFromS3({
   logger.info("✅ Import terminé:");
   logger.info(`    ${nbDatesTransmises} dates transmises`);
   logger.info(`    ${nbReferencesCorrigées} références corrigées`);
+  logger.info(`    ${nbDatesDejaTransmises} dates déjà transmises`);
   logger.info(`    ${errors.length} erreurs`);
   if (errors.length > 0) {
     throw new Error(`${errors.length} erreurs ont eu lieu`);

@@ -1,3 +1,5 @@
+import { ApiError } from "./error.js";
+
 export type TransmettreDateDeMiseEnServiceProps = {
   identifiantProjet: string;
   reference: string;
@@ -28,10 +30,18 @@ export async function transmettreDateDeMiseEnService({
     }),
   });
   if (!response.ok) {
+    const body = (await response.json()) as Record<string, string>;
+    if (
+      body?.message ===
+      "La date de mise en service est déjà transmise pour ce dossier de raccordement"
+    ) {
+      throw new ApiError("DATE_MISE_EN_SERVICE_DEJA_TRANSMISE");
+    }
+
     throw new Error(
       `HTTP Error querying ${url}: ${response.status} ${
         response.statusText
-      } (${await response.text()})`,
+      } (${JSON.stringify(body)})`,
     );
   }
 }
