@@ -7,6 +7,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint",
+    "format": "npx @biomejs/biome format --write ./src",
     "start:import": "node ./dist/import.js",
     "start:export": "node ./dist/export.js",
     "dev:import": "tsx ./src/import.ts",

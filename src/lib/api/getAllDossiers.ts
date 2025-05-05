@@ -14,6 +14,12 @@ type DossierRaccordement = {
   codePostal: string;
   referenceDossier: string;
   statutDGEC: string;
+  puissance: string;
+  nomCandidat: string;
+  sociétéMère: string;
+  emailContact: string;
+  siteProduction: string;
+  dateNotification: string;
 };
 
 type GetAllDossiersResponse = {
