@@ -16,7 +16,7 @@ type DossierRaccordement = {
   statutDGEC: string;
   puissance: string;
   nomCandidat: string;
-  societeMère: string;
+  sociétéMère: string;
   emailContact: string;
   siteProduction: string;
   dateNotification: string;
