@@ -32,6 +32,7 @@ export async function exportToS3({
       ...dossier,
       dateMiseEnService: "",
       nouvelleReference: "",
+      dateAccuseReception: "",
     })),
   });
 
