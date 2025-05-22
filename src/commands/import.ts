@@ -1,0 +1,143 @@
+import { Command, Flags } from "@oclif/core";
+import { type ApiClient, getApiClient } from "../lib/api/client.js";
+import { ApiError } from "../lib/api/error.js";
+import { parseConfig } from "../lib/config.js";
+import { getCsvAsData } from "../lib/csv.js";
+import { getLocalFileReader } from "../lib/files/local.js";
+import { getS3Client } from "../lib/files/s3.js";
+import type { FileReader } from "../lib/files/type.js";
+import {
+  type HealtcheckClient,
+  getHealthcheckClient,
+} from "../lib/healthcheck.js";
+import { importerDonnéesDossierRaccordement } from "../lib/import/importerDonnéesRaccordement.js";
+import { parseLine } from "../lib/import/parseLine.js";
+import { type Logger, getLogger } from "../lib/logger.js";
+import { createStats, mergeStats } from "../lib/stats.js";
+
+export abstract class Import extends Command {
+  private apiClient!: ApiClient;
+  private healthcheckClient!: HealtcheckClient;
+  private logger!: Logger;
+  private fileReader!: FileReader;
+
+  static flags = {
+    filename: Flags.file({}),
+  };
+
+  async init() {
+    const { flags } = await this.parse(Import);
+
+    const config = parseConfig();
+    this.fileReader = flags.filename
+      ? getLocalFileReader(flags.filename)
+      : await getS3Client({
+          accessKey: config.S3_ACCESS_KEY,
+          secretKey: config.S3_SECRET_KEY,
+          endpoint: config.S3_ENDPOINT,
+          region: config.S3_REGION,
+          bucketName: config.S3_BUCKET,
+          prefix: config.DOWNLOAD_FOLDER,
+        });
+
+    this.logger = getLogger();
+    this.apiClient = await getApiClient({
+      apiUrl: config.API_URL,
+      clientId: config.CLIENT_ID,
+      clientSecret: config.CLIENT_SECRET,
+      issuerUrl: config.ISSUER_URL,
+    });
+    this.healthcheckClient = getHealthcheckClient(
+      config.SENTRY_CRONS_EXPORT,
+      config.APPLICATION_STAGE,
+    );
+    await this.healthcheckClient.start();
+  }
+
+  protected async finally(err: Error | undefined) {
+    if (err) {
+      await this.healthcheckClient.error();
+    } else {
+      await this.healthcheckClient.success();
+    }
+  }
+
+  async run() {
+    this.logger.info(
+      `🚩 Démarrage de l'import des données de raccordement depuis Enedis`,
+    );
+
+    const files = await this.fileReader.list();
+
+    if (files.length === 0) {
+      this.logger.info("⛔ Aucun ficher trouvé");
+      return;
+    }
+
+    const errors: { identifiantProjet: string }[] = [];
+
+    const stats = createStats();
+    let nbLignesInvalides = 0;
+
+    for (const filename of files) {
+      this.logger.info(`👷 Traitement du fichier ${filename}...`);
+
+      const contents = await this.fileReader.download(filename);
+      const rows = getCsvAsData(contents);
+
+      this.logger.info(`🛠  ${rows.length} lignes à traiter`);
+      for (const row of rows) {
+        const parsed = parseLine(row);
+        if (!parsed.success) {
+          this.logger.warn("❗ Ligne invalide", {
+            row,
+            error: parsed.error,
+            type: parsed.type,
+          });
+          nbLignesInvalides++;
+          continue;
+        }
+
+        try {
+          const statsImport = await importerDonnéesDossierRaccordement(
+            parsed,
+            this.apiClient,
+          );
+
+          mergeStats({ stats: statsImport, into: stats });
+        } catch (error) {
+          if (
+            error instanceof ApiError &&
+            error.type === "DATE_MISE_EN_SERVICE_DEJA_TRANSMISE"
+          ) {
+            this.logger.info("Date déja transmise", {
+              identifiantProjet: parsed.data.identifiantProjet,
+            });
+            stats.nbDatesDejaTransmises++;
+            continue;
+          }
+          errors.push(parsed.data);
+          this.logger.warn("❗ Erreur lors de l'import", {
+            identifiantProjet: parsed.data.identifiantProjet,
+            reference:
+              parsed.type === "dossier-existant"
+                ? parsed.data.referenceDossier
+                : parsed.data.nouvelleReference,
+            error: (error as Error).message,
+          });
+        }
+      }
+
+      await this.fileReader.archive(filename);
+    }
+    this.logger.info("✅ Import terminé:");
+    this.logger.info("📈 Stats: ", JSON.stringify(stats, null, 2));
+    this.logger.info(`❗ ${errors.length} erreurs`);
+    if (errors.length > 0) {
+      throw new Error(`${errors.length} erreurs ont eu lieu`);
+    }
+    if (nbLignesInvalides) {
+      throw new Error("Des lignes du fichier sont invalides");
+    }
+  }
+}

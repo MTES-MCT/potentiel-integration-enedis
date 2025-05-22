@@ -14,7 +14,7 @@ export const getDataAsCsv = async <TRaw extends object>({
   return csvParser.parse(data);
 };
 
-export const getCsvAsData = (data: string) => {
+export const getCsvAsData = (data: string): unknown[] => {
   return csv2json.parse(data, {
     delimiter,
     encoding: "utf-8",

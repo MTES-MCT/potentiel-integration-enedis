@@ -1,11 +1,11 @@
 {
   "jobs": [
     {
-      "command": "0 10 * * 1-5 node ./dist/import.js",
+      "command": "0 10 * * 1-5 ./bin/run.js import",
       "size": "M"
     },
     {
-      "command": "0 9 1 */3 * node ./dist/export.js",
+      "command": "0 9 1 */3 * ./bin/run.js export",
       "size": "M"
     }
   ]

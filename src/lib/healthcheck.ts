@@ -4,12 +4,13 @@ export function getHealthcheckClient(
   healthcheckUrl: string | undefined,
   enviroment: string,
 ) {
-  if (!healthcheckUrl)
+  if (!healthcheckUrl) {
     return {
       async start() {},
       async success() {},
       async error() {},
     };
+  }
 
   const uuid = crypto.randomUUID();
   const notify = async (status: string) => {
@@ -31,3 +32,5 @@ export function getHealthcheckClient(
     error: () => notify("error"),
   };
 }
+
+export type HealtcheckClient = Awaited<ReturnType<typeof getHealthcheckClient>>;

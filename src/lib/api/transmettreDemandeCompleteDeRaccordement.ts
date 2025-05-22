@@ -1,42 +1,35 @@
 import { ApiError } from "./error.js";
 
-export type TransmettreDateDeMiseEnServiceProps = {
+export type TransmettreDemandeCompleteDeRaccordementProps = {
   identifiantProjet: string;
   référence: string;
-  dateMiseEnService: Date;
+  dateAccuseReception: Date;
 };
 
 type ApiClientProps = { apiUrl: string; authorizationHeader: string };
 
-export async function transmettreDateDeMiseEnService({
+export async function transmettreDemandeCompleteDeRaccordement({
   apiUrl,
   authorizationHeader,
   référence,
-  dateMiseEnService,
+  dateAccuseReception,
   identifiantProjet,
-}: TransmettreDateDeMiseEnServiceProps & ApiClientProps) {
+}: TransmettreDemandeCompleteDeRaccordementProps & ApiClientProps) {
   const url = `${apiUrl}/laureats/${encodeURIComponent(
     identifiantProjet,
-  )}/raccordements/${encodeURIComponent(
-    référence,
-  )}/date-mise-en-service:transmettre`;
+  )}/raccordements/demande-complete-raccordement:transmettre`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: authorizationHeader,
     },
     body: JSON.stringify({
-      dateMiseEnService: dateMiseEnService.toISOString(),
+      reference: référence,
+      dateAccuseReception: dateAccuseReception.toISOString(),
     }),
   });
   if (!response.ok) {
     const body = (await response.json()) as Record<string, string>;
-    if (
-      body?.message ===
-      "La date de mise en service est déjà transmise pour ce dossier de raccordement"
-    ) {
-      throw new ApiError("DATE_MISE_EN_SERVICE_DEJA_TRANSMISE");
-    }
 
     throw new Error(
       `HTTP Error querying ${url}: ${response.status} ${

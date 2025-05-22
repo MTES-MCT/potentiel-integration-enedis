@@ -1,21 +1,21 @@
 export type ModifierReferenceDossierProps = {
   identifiantProjet: string;
-  reference: string;
+  référence: string;
   nouvelleReference: string;
 };
 
 type ApiClientProps = { apiUrl: string; authorizationHeader: string };
 
-export async function modifierReferenceDossier({
+export async function modifierRéférenceDossier({
   apiUrl,
   authorizationHeader,
-  reference,
+  référence,
   nouvelleReference,
   identifiantProjet,
 }: ModifierReferenceDossierProps & ApiClientProps) {
   const url = `${apiUrl}/laureats/${encodeURIComponent(
     identifiantProjet,
-  )}/raccordements/${encodeURIComponent(reference)}/reference:modifier`;
+  )}/raccordements/${encodeURIComponent(référence)}/reference:modifier`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
