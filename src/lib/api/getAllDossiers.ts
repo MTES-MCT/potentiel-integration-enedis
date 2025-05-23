@@ -1,6 +1,7 @@
 type GetAllDossiersProps = {
   apiUrl: string;
   authorizationHeader: string;
+  includeManquants: boolean;
 };
 
 type DossierRaccordement = {
@@ -58,7 +59,11 @@ async function fetchDossiers({
 async function getDossiersManquants({
   apiUrl,
   authorizationHeader,
+  includeManquants,
 }: GetAllDossiersProps) {
+  if (!includeManquants) {
+    return [];
+  }
   const url = new URL(`${apiUrl}/reseaux/raccordements/manquants`);
   return fetchDossiers({ url, authorizationHeader });
 }

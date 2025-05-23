@@ -17,8 +17,18 @@ export class Export extends Command {
   private uploadFilePathTemplate!: string;
   private healthcheckClient!: HealtcheckClient;
 
+  static description =
+    "Génère un fichier CSV sur S3 (ou local si le flag --local est utilisé) contenant les dossiers de raccordements sans date de mise en service";
+
   static flags = {
-    local: Flags.boolean({}),
+    local: Flags.boolean({
+      description:
+        "le fichier est généré en local au lieu du S3, utile pour tester",
+    }),
+    includeDossiersManquants: Flags.boolean({
+      description:
+        "Les raccordements sans dossiers sont ajoutés au fichier CSV",
+    }),
   };
 
   async init() {
@@ -61,11 +71,15 @@ export class Export extends Command {
   }
 
   async run() {
+    const { flags } = await this.parse(Export);
+
     const logger = getLogger();
     logger.info(
       "⬆️  Création du fichier des dossiers en attente de mise en service...",
     );
-    const dossiers = await this.apiClient.raccordement.getAllDossiers();
+    const dossiers = await this.apiClient.raccordement.getAllDossiers({
+      includeManquants: flags.includeDossiersManquants,
+    });
 
     if (dossiers.length === 0) {
       logger.info("⛔ Aucun dossier de raccordement à traiter");

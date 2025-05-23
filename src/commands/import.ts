@@ -21,6 +21,9 @@ export abstract class Import extends Command {
   private logger!: Logger;
   private fileReader!: FileReader;
 
+  static description =
+    "Importe depuis un fichier CSV sur S3 (ou local si --filename est utilisé) pour transmission des dates de mise en service, modification des référence de raccordement et/ou transmission d'une DCR";
+
   static flags = {
     filename: Flags.file({}),
   };

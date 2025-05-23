@@ -37,7 +37,8 @@ export async function getApiClient({
   const authorizationHeader = `Bearer ${accessToken}`;
   return {
     raccordement: {
-      getAllDossiers: () => getAllDossiers({ authorizationHeader, apiUrl }),
+      getAllDossiers: (props: { includeManquants: boolean }) =>
+        getAllDossiers({ authorizationHeader, apiUrl, ...props }),
       transmettreDateDeMiseEnService: (
         props: TransmettreDateDeMiseEnServiceProps,
       ) =>
