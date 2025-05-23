@@ -1,12 +1,13 @@
 import { basename, dirname, join } from "node:path";
 import { S3 } from "@aws-sdk/client-s3";
 
-export type UploadToS3Props = {
+export type GetS3ClientProps = {
   accessKey: string;
   secretKey: string;
   endpoint: string;
   bucketName: string;
   region: string;
+  prefix: string;
 };
 export async function getS3Client({
   accessKey,
@@ -14,7 +15,8 @@ export async function getS3Client({
   region,
   secretKey,
   bucketName,
-}: UploadToS3Props) {
+  prefix,
+}: GetS3ClientProps) {
   const s3Client = new S3({
     credentials: {
       accessKeyId: accessKey,
@@ -28,17 +30,17 @@ export async function getS3Client({
   await s3Client.headBucket({ Bucket: bucketName });
 
   return {
-    upload: (filename: string, data: string) => {
-      return s3Client.putObject({
+    upload: async (filename: string, data: string) => {
+      await s3Client.putObject({
         Bucket: bucketName,
         Key: filename,
         Body: data,
       });
     },
-    list: async (dirName: string) => {
+    list: async () => {
       const { Contents } = await s3Client.listObjects({
         Bucket: bucketName,
-        Prefix: dirName,
+        Prefix: prefix,
       });
       if (!Contents) {
         return [];

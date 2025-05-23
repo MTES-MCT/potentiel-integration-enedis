@@ -7,3 +7,5 @@ const logger = winston.createLogger({
 });
 
 export const getLogger = () => logger;
+
+export type Logger = ReturnType<typeof getLogger>;

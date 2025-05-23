@@ -2,7 +2,7 @@ import { ApiError } from "./error.js";
 
 export type TransmettreDateDeMiseEnServiceProps = {
   identifiantProjet: string;
-  reference: string;
+  référence: string;
   dateMiseEnService: Date;
 };
 
@@ -11,14 +11,14 @@ type ApiClientProps = { apiUrl: string; authorizationHeader: string };
 export async function transmettreDateDeMiseEnService({
   apiUrl,
   authorizationHeader,
-  reference,
+  référence,
   dateMiseEnService,
   identifiantProjet,
 }: TransmettreDateDeMiseEnServiceProps & ApiClientProps) {
   const url = `${apiUrl}/laureats/${encodeURIComponent(
     identifiantProjet,
   )}/raccordements/${encodeURIComponent(
-    reference,
+    référence,
   )}/date-mise-en-service:transmettre`;
   const response = await fetch(url, {
     method: "POST",

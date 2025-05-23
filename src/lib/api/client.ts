@@ -3,12 +3,16 @@ import { getAccessToken } from "./auth.js";
 import { getAllDossiers } from "./getAllDossiers.js";
 import {
   type ModifierReferenceDossierProps,
-  modifierReferenceDossier,
+  modifierRéférenceDossier,
 } from "./modifierReferenceDossier.js";
 import {
   type TransmettreDateDeMiseEnServiceProps,
   transmettreDateDeMiseEnService,
 } from "./transmettreDateMiseEnService.js";
+import {
+  type TransmettreDemandeCompleteDeRaccordementProps,
+  transmettreDemandeCompleteDeRaccordement,
+} from "./transmettreDemandeCompleteDeRaccordement.js";
 
 type GetApiClientProps = {
   apiUrl: string;
@@ -33,7 +37,8 @@ export async function getApiClient({
   const authorizationHeader = `Bearer ${accessToken}`;
   return {
     raccordement: {
-      getAllDossiers: () => getAllDossiers({ authorizationHeader, apiUrl }),
+      getAllDossiers: (props: { includeManquants: boolean }) =>
+        getAllDossiers({ authorizationHeader, apiUrl, ...props }),
       transmettreDateDeMiseEnService: (
         props: TransmettreDateDeMiseEnServiceProps,
       ) =>
@@ -43,7 +48,15 @@ export async function getApiClient({
           authorizationHeader,
         }),
       modifierReferenceDossier: (props: ModifierReferenceDossierProps) =>
-        modifierReferenceDossier({ ...props, apiUrl, authorizationHeader }),
+        modifierRéférenceDossier({ ...props, apiUrl, authorizationHeader }),
+      transmettreDemandeCompleteDeRaccordement: (
+        props: TransmettreDemandeCompleteDeRaccordementProps,
+      ) =>
+        transmettreDemandeCompleteDeRaccordement({
+          ...props,
+          apiUrl,
+          authorizationHeader,
+        }),
     },
   };
 }

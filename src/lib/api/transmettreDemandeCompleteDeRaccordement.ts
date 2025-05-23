@@ -1,33 +1,38 @@
-export type ModifierReferenceDossierProps = {
+export type TransmettreDemandeCompleteDeRaccordementProps = {
   identifiantProjet: string;
   référence: string;
-  nouvelleReference: string;
+  dateAccuseReception: Date;
 };
 
 type ApiClientProps = { apiUrl: string; authorizationHeader: string };
 
-export async function modifierRéférenceDossier({
+export async function transmettreDemandeCompleteDeRaccordement({
   apiUrl,
   authorizationHeader,
   référence,
-  nouvelleReference,
+  dateAccuseReception,
   identifiantProjet,
-}: ModifierReferenceDossierProps & ApiClientProps) {
+}: TransmettreDemandeCompleteDeRaccordementProps & ApiClientProps) {
   const url = `${apiUrl}/laureats/${encodeURIComponent(
     identifiantProjet,
-  )}/raccordements/${encodeURIComponent(référence)}/reference:modifier`;
+  )}/raccordements/demande-complete-raccordement:transmettre`;
   const response = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: authorizationHeader,
     },
-    body: JSON.stringify({ nouvelleReference }),
+    body: JSON.stringify({
+      reference: référence,
+      dateAccuseReception: dateAccuseReception.toISOString(),
+    }),
   });
   if (!response.ok) {
+    const body = (await response.json()) as Record<string, string>;
+
     throw new Error(
       `HTTP Error querying ${url}: ${response.status} ${
         response.statusText
-      } (${await response.text()})`,
+      } (${JSON.stringify(body)})`,
     );
   }
 }
