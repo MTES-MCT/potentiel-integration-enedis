@@ -35,6 +35,12 @@ export class Export extends Command {
     const { flags } = await this.parse(Export);
 
     const config = parseConfig();
+
+    this.healthcheckClient = getHealthcheckClient(
+      config.SENTRY_CRONS_EXPORT,
+      config.APPLICATION_STAGE,
+    );
+
     this.apiClient = await getApiClient({
       apiUrl: config.API_URL,
       clientId: config.CLIENT_ID,
@@ -52,10 +58,6 @@ export class Export extends Command {
           bucketName: config.S3_BUCKET,
           prefix: config.DOWNLOAD_FOLDER,
         });
-    this.healthcheckClient = getHealthcheckClient(
-      config.SENTRY_CRONS_EXPORT,
-      config.APPLICATION_STAGE,
-    );
 
     this.uploadFilePathTemplate = config.UPLOAD_FILE_PATH_TEMPLATE;
 

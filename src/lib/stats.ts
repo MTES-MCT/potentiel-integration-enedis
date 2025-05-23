@@ -1,8 +1,8 @@
 type Stat = Record<string | symbol, number>;
 export const createStats = () => {
   return new Proxy({} as Stat, {
-    get(target, p) {
-      return target[p] ?? 0;
+    get(target, key) {
+      return target[key] ?? 0;
     },
   });
 };

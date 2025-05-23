@@ -32,6 +32,12 @@ export abstract class Import extends Command {
     const { flags } = await this.parse(Import);
 
     const config = parseConfig();
+
+    this.healthcheckClient = getHealthcheckClient(
+      config.SENTRY_CRONS_EXPORT,
+      config.APPLICATION_STAGE,
+    );
+
     this.fileReader = flags.filename
       ? getLocalFileReader(flags.filename)
       : await getS3Client({
@@ -50,16 +56,13 @@ export abstract class Import extends Command {
       clientSecret: config.CLIENT_SECRET,
       issuerUrl: config.ISSUER_URL,
     });
-    this.healthcheckClient = getHealthcheckClient(
-      config.SENTRY_CRONS_EXPORT,
-      config.APPLICATION_STAGE,
-    );
+
     await this.healthcheckClient.start();
   }
 
   protected async finally(err: Error | undefined) {
     if (err) {
-      await this.healthcheckClient.error();
+      await this.healthcheckClient?.error();
     } else {
       await this.healthcheckClient.success();
     }
@@ -134,7 +137,8 @@ export abstract class Import extends Command {
       await this.fileReader.archive(filename);
     }
     this.logger.info("✅ Import terminé:");
-    this.logger.info("📈 Stats: ", JSON.stringify(stats, null, 2));
+
+    this.logger.info("📈 Stats: ", stats);
     this.logger.info(`❗ ${errors.length} erreurs`);
     if (errors.length > 0) {
       throw new Error(`${errors.length} erreurs ont eu lieu`);
