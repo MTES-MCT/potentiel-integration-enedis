@@ -1,5 +1,3 @@
-import { ApiError } from "./error.js";
-
 export type TransmettreDemandeCompleteDeRaccordementProps = {
   identifiantProjet: string;
   référence: string;
