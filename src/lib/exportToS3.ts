@@ -18,9 +18,7 @@ export async function exportToS3({
   logger.info(
     "⬆️  Création du fichier des dossiers en attente de mise en service...",
   );
-  const dossiers = (await apiClient.raccordement.getAllDossiers()).filter(
-    (dossier) => dossier.referenceDossier !== "Référence non transmise",
-  );
+  const dossiers = await apiClient.raccordement.getAllDossiers();
 
   if (dossiers.length === 0) {
     logger.info("⛔ Aucun dossier de raccordement à traiter");
@@ -32,6 +30,7 @@ export async function exportToS3({
       ...dossier,
       dateMiseEnService: "",
       nouvelleReference: "",
+      dateAccuseReception: "",
     })),
   });
 

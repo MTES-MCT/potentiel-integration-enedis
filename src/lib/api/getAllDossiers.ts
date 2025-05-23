@@ -28,16 +28,14 @@ type GetAllDossiersResponse = {
   total: number;
 };
 
-export async function getAllDossiers({
-  apiUrl,
+async function fetchDossiers({
+  url,
   authorizationHeader,
-}: GetAllDossiersProps) {
-  const url = new URL(`${apiUrl}/reseaux/raccordements`);
+}: { url: URL; authorizationHeader: string }) {
   const dossiers: DossierRaccordement[] = [];
   let page = 1;
   while (true) {
     url.searchParams.set("page", String(page));
-    url.searchParams.set("avecDateMiseEnService", "false");
     const response = await fetch(url, {
       headers: { Authorization: authorizationHeader },
     });
@@ -55,4 +53,28 @@ export async function getAllDossiers({
     page++;
   }
   return dossiers;
+}
+
+async function getDossiersManquants({
+  apiUrl,
+  authorizationHeader,
+}: GetAllDossiersProps) {
+  const url = new URL(`${apiUrl}/reseaux/raccordements/manquants`);
+  return fetchDossiers({ url, authorizationHeader });
+}
+
+async function getDossiersRaccordements({
+  apiUrl,
+  authorizationHeader,
+}: GetAllDossiersProps) {
+  const url = new URL(`${apiUrl}/reseaux/raccordements`);
+  url.searchParams.set("avecDateMiseEnService", "false");
+  return fetchDossiers({ url, authorizationHeader });
+}
+
+export async function getAllDossiers(props: GetAllDossiersProps) {
+  const dossiersRaccordements = await getDossiersRaccordements(props);
+  const dossiersManquants = await getDossiersManquants(props);
+
+  return [...dossiersRaccordements, ...dossiersManquants];
 }
