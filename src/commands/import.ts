@@ -34,7 +34,7 @@ export abstract class Import extends Command {
     const config = parseConfig();
 
     this.healthcheckClient = getHealthcheckClient(
-      config.SENTRY_CRONS_EXPORT,
+      config.SENTRY_CRONS_IMPORT,
       config.APPLICATION_STAGE,
     );
 
