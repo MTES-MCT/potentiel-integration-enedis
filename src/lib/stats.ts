@@ -9,6 +9,7 @@ export const createStats = () => {
 
 export const mergeStats = ({ stats, into }: { into: Stat; stats: Stat }) => {
   for (const [prop, value] of Object.entries(stats)) {
-    into[prop] = value;
+    into[prop] ??= 0;
+    into[prop] += value;
   }
 };
