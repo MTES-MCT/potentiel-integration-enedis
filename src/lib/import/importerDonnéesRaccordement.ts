@@ -49,9 +49,9 @@ export async function importerDonnéesDossierRaccordement(
   }
 
   const référence =
-    type === "dossier-existant"
-      ? data.referenceDossier
-      : data.nouvelleReference;
+    type === "nouveau-dossier" || data.nouvelleReference
+      ? data.nouvelleReference
+      : data.referenceDossier;
 
   if (data.dateMiseEnService && référence) {
     const payload = {
