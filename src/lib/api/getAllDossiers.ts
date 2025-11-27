@@ -47,7 +47,7 @@ async function fetchDossiers({
     if (!response.ok) {
       const errBody = await response.text();
       throw new Error(
-        `HTTP Error querying ${url}: ${response.status} ${response.statusText} (${errBody})`,
+        `HTTP Error querying ${url}: ${response.status} ${response.statusText} (${errBody})`
       );
     }
     const { items, total } = (await response.json()) as GetAllDossiersResponse;
