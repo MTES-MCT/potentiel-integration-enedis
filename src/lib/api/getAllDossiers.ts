@@ -2,6 +2,7 @@ type GetAllDossiersProps = {
   apiUrl: string;
   authorizationHeader: string;
   includeManquants: boolean;
+  oneShot?: true; // récupérer tous les dossiers avec ou sans date de mise en service pour export one shot
 };
 
 type DossierRaccordement = {
@@ -32,7 +33,10 @@ type GetAllDossiersResponse = {
 async function fetchDossiers({
   url,
   authorizationHeader,
-}: { url: URL; authorizationHeader: string }) {
+}: {
+  url: URL;
+  authorizationHeader: string;
+}) {
   const dossiers: DossierRaccordement[] = [];
   let page = 1;
   while (true) {
@@ -71,9 +75,12 @@ async function getDossiersManquants({
 async function getDossiersRaccordements({
   apiUrl,
   authorizationHeader,
+  oneShot,
 }: GetAllDossiersProps) {
   const url = new URL(`${apiUrl}/reseaux/raccordements`);
-  url.searchParams.set("avecDateMiseEnService", "false");
+  if (!oneShot) {
+    url.searchParams.set("avecDateMiseEnService", "false");
+  }
   return fetchDossiers({ url, authorizationHeader });
 }
 
