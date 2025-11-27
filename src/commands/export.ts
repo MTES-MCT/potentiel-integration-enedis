@@ -25,9 +25,13 @@ export class Export extends Command {
       description:
         "le fichier est généré en local au lieu du S3, utile pour tester",
     }),
-    includeDossiersManquants: Flags.boolean({
+    inclureDossierManquant: Flags.boolean({
       description:
         "Les raccordements sans dossiers sont ajoutés au fichier CSV",
+    }),
+    inclureDossierEnService: Flags.boolean({
+      description:
+        "Récupérer tous les dossiers avec ou sans date de mise en service",
     }),
   };
 
@@ -76,11 +80,24 @@ export class Export extends Command {
     const { flags } = await this.parse(Export);
 
     const logger = getLogger();
+
     logger.info(
-      "⬆️  Création du fichier des dossiers en attente de mise en service...",
+      `⬆️  Création du fichier des dossiers de raccordement de tout projet actif ${
+        flags.inclureDossierEnService
+          ? "mis en service ou non"
+          : "en attente de mise en service"
+      }, ${
+        flags.inclureDossierManquant &&
+        "incluant les projets sans dossier de raccordement"
+      }`,
     );
+    logger.info(
+      `🗂️ Ce fichier sera uploadé ${flags.local ? "localement" : "sur S3"}`,
+    );
+
     const dossiers = await this.apiClient.raccordement.getAllDossiers({
-      includeManquants: flags.includeDossiersManquants,
+      inclureDossierManquant: flags.inclureDossierManquant,
+      inclureDossierEnService: flags.inclureDossierEnService,
     });
 
     if (dossiers.length === 0) {

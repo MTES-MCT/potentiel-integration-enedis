@@ -1,7 +1,8 @@
 type GetAllDossiersProps = {
   apiUrl: string;
   authorizationHeader: string;
-  includeManquants: boolean;
+  inclureDossierManquant: boolean;
+  inclureDossierEnService: boolean;
 };
 
 type DossierRaccordement = {
@@ -32,7 +33,10 @@ type GetAllDossiersResponse = {
 async function fetchDossiers({
   url,
   authorizationHeader,
-}: { url: URL; authorizationHeader: string }) {
+}: {
+  url: URL;
+  authorizationHeader: string;
+}) {
   const dossiers: DossierRaccordement[] = [];
   let page = 1;
   while (true) {
@@ -59,9 +63,9 @@ async function fetchDossiers({
 async function getDossiersManquants({
   apiUrl,
   authorizationHeader,
-  includeManquants,
+  inclureDossierManquant,
 }: GetAllDossiersProps) {
-  if (!includeManquants) {
+  if (!inclureDossierManquant) {
     return [];
   }
   const url = new URL(`${apiUrl}/reseaux/raccordements/manquants`);
@@ -71,9 +75,14 @@ async function getDossiersManquants({
 async function getDossiersRaccordements({
   apiUrl,
   authorizationHeader,
+  inclureDossierEnService,
 }: GetAllDossiersProps) {
   const url = new URL(`${apiUrl}/reseaux/raccordements`);
-  url.searchParams.set("avecDateMiseEnService", "false");
+
+  if (!inclureDossierEnService) {
+    url.searchParams.set("avecDateMiseEnService", "false");
+  }
+
   return fetchDossiers({ url, authorizationHeader });
 }
 
