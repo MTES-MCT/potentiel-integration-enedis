@@ -25,13 +25,13 @@ export class Export extends Command {
       description:
         "le fichier est généré en local au lieu du S3, utile pour tester",
     }),
-    includeDossiersManquants: Flags.boolean({
+    inclureDossierManquant: Flags.boolean({
       description:
         "Les raccordements sans dossiers sont ajoutés au fichier CSV",
     }),
-    oneShot: Flags.boolean({
+    inclureDossierEnService: Flags.boolean({
       description:
-        "Récupérer tous les dossiers avec ou sans date de mise en service pour export one shot",
+        "Récupérer tous les dossiers avec ou sans date de mise en service",
     }),
   };
 
@@ -83,12 +83,12 @@ export class Export extends Command {
 
     logger.info(
       `⬆️  Création du fichier des dossiers de raccordement de tout projet actif ${
-        flags.oneShot
+        flags.inclureDossierEnService
           ? "mis en service ou non"
           : "en attente de mise en service"
       }, ${
-        flags.includeDossiersManquants &&
-        "incluant les projets avec des références de raccordement manquantes"
+        flags.inclureDossierManquant &&
+        "incluant les projets sans dossier de raccordement"
       }`,
     );
     logger.info(
@@ -96,8 +96,8 @@ export class Export extends Command {
     );
 
     const dossiers = await this.apiClient.raccordement.getAllDossiers({
-      includeManquants: flags.includeDossiersManquants,
-      oneShot: flags.oneShot,
+      inclureDossierManquant: flags.inclureDossierManquant,
+      inclureDossierEnService: flags.inclureDossierEnService,
     });
 
     if (dossiers.length === 0) {

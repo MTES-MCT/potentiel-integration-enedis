@@ -38,8 +38,8 @@ export async function getApiClient({
   return {
     raccordement: {
       getAllDossiers: (props: {
-        includeManquants: boolean;
-        oneShot: boolean;
+        inclureDossierManquant: boolean;
+        inclureDossierEnService: boolean;
       }) => getAllDossiers({ authorizationHeader, apiUrl, ...props }),
       transmettreDateDeMiseEnService: (
         props: TransmettreDateDeMiseEnServiceProps,
