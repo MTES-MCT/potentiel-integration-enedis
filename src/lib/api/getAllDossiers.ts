@@ -51,6 +51,18 @@ async function fetchDossiers({
       );
     }
     const { items, total } = (await response.json()) as GetAllDossiersResponse;
+
+    if (
+      items[0] &&
+      dossiers.find(
+        (d) =>
+          d.referenceDossier === items[0].referenceDossier &&
+          d.identifiantProjet === items[0].identifiantProjet,
+      )
+    ) {
+      throw new Error("Infinite loop detected: duplicate dossier found");
+    }
+
     dossiers.push(...items);
     if (dossiers.length >= total) {
       break;
