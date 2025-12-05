@@ -38,9 +38,9 @@ async function fetchDossiers({
   authorizationHeader: string;
 }) {
   const dossiers: DossierRaccordement[] = [];
-  let page = 1;
+  let after: number | undefined;
   while (true) {
-    url.searchParams.set("page", String(page));
+    url.searchParams.set("after", String(after));
     const response = await fetch(url, {
       headers: { Authorization: authorizationHeader },
     });
@@ -50,12 +50,28 @@ async function fetchDossiers({
         `HTTP Error querying ${url}: ${response.status} ${response.statusText} (${errBody})`,
       );
     }
-    const { items, total } = (await response.json()) as GetAllDossiersResponse;
+    const {
+      items,
+      total,
+      range: { endPosition },
+    } = (await response.json()) as GetAllDossiersResponse;
+
+    if (
+      items[0] &&
+      dossiers.find(
+        (d) =>
+          d.referenceDossier === items[0].referenceDossier &&
+          d.identifiantProjet === items[0].identifiantProjet,
+      )
+    ) {
+      throw new Error("Infinite loop detected: duplicate dossier found");
+    }
+
     dossiers.push(...items);
     if (dossiers.length >= total) {
       break;
     }
-    page++;
+    after = endPosition;
   }
   return dossiers;
 }
