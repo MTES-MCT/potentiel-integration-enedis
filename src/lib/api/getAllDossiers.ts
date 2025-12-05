@@ -38,9 +38,9 @@ async function fetchDossiers({
   authorizationHeader: string;
 }) {
   const dossiers: DossierRaccordement[] = [];
-  let page = 1;
+  let after: number | undefined;
   while (true) {
-    url.searchParams.set("page", String(page));
+    url.searchParams.set("after", String(after));
     const response = await fetch(url, {
       headers: { Authorization: authorizationHeader },
     });
@@ -50,7 +50,11 @@ async function fetchDossiers({
         `HTTP Error querying ${url}: ${response.status} ${response.statusText} (${errBody})`,
       );
     }
-    const { items, total } = (await response.json()) as GetAllDossiersResponse;
+    const {
+      items,
+      total,
+      range: { endPosition },
+    } = (await response.json()) as GetAllDossiersResponse;
 
     if (
       items[0] &&
@@ -67,7 +71,7 @@ async function fetchDossiers({
     if (dossiers.length >= total) {
       break;
     }
-    page++;
+    after = endPosition;
   }
   return dossiers;
 }
