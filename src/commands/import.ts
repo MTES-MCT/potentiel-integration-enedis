@@ -7,12 +7,12 @@ import { getLocalFileReader } from "../lib/files/local.js";
 import { getS3Client } from "../lib/files/s3.js";
 import type { FileReader } from "../lib/files/type.js";
 import {
-  type HealtcheckClient,
   getHealthcheckClient,
+  type HealtcheckClient,
 } from "../lib/healthcheck.js";
 import { importerDonnéesDossierRaccordement } from "../lib/import/importerDonnéesRaccordement.js";
 import { parseLine } from "../lib/import/parseLine.js";
-import { type Logger, getLogger } from "../lib/logger.js";
+import { getLogger, type Logger } from "../lib/logger.js";
 import { createStats, mergeStats } from "../lib/stats.js";
 
 export abstract class Import extends Command {
