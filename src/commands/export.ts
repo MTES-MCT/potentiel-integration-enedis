@@ -96,10 +96,12 @@ export class Export extends Command {
       `🗂️ Ce fichier sera uploadé ${flags.local ? "localement" : "sur S3"}`,
     );
 
+    logger.info("🔎 Récupération des dossiers de raccordement...");
     const dossiers = await this.apiClient.raccordement.getDossiers(
       flags.inclureDossierEnService,
     );
     if (flags.inclureDossierManquant) {
+      logger.info("🔎 Récupération des dossiers manquants...");
       const dossiersManquants =
         await this.apiClient.raccordement.getDossiersManquants();
       dossiers.push(...dossiersManquants);

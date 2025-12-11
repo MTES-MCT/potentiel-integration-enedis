@@ -33,13 +33,14 @@ export const createAuthMiddleware = async ({
   return {
     async onRequest({ request }) {
       if (!token || token.expires_at <= Date.now()) {
-        logger.debug("No token available, fetching a new access token...");
+        logger.debug("Récupération d'un nouveau jeton d'accès...");
         const { access_token, expires_in } =
           await client.clientCredentialsGrant(config);
         token = {
           access_token,
           expires_at: Date.now() + (expires_in ?? 0) * 1000,
         };
+        logger.info("🔑 Jeton récupéré.");
       }
 
       request.headers.set("Authorization", `Bearer ${token.access_token}`);
