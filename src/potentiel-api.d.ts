@@ -139,28 +139,37 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        Addresse: {
+            adresse1: string;
+            adresse2: string;
+            codePostal: string;
+            commune: string;
+            departement: string;
+            region: string;
+        };
         /**
          * @description Un dossier de raccordement représente un point d'injection d'un projet.
          *
          *     _NB: un projet peut avoir plusieurs dossiers de raccordement._
          */
         DossierRaccordement: {
-            nomProjet: string;
             identifiantProjet: string;
+            nomProjet: string;
             appelOffre: string;
             periode: string;
             famille: string;
-            numeroCRE: string;
-            commune: string;
-            codePostal: string;
-            referenceDossier: string;
-            statutDGEC: string;
-            puissance: string;
-            nomCandidat: string;
-            "soci\u00E9t\u00E9M\u00E8re": string;
-            emailContact: string;
             /** @description Adresse complète du site de production */
-            siteProduction: string;
+            siteDeProduction: components["schemas"]["Addresse"];
+            numeroCRE: string;
+            referenceDossier: string;
+            /** @enum {string} */
+            statut: "actif" | "achevé";
+            /** Format: float */
+            puissance: number;
+            unitePuissance: string;
+            nomCandidat: string;
+            societeMere: string;
+            emailContact: string;
             /**
              * Format: date
              * @description La date où le projet a été notifié
@@ -190,13 +199,30 @@ export interface components {
         };
         ProjetAvecAchevementATransmettre: {
             identifiantProjet: string;
-            identifiantGestionnaireReseau: string;
-            referenceDossierRaccordement: string;
-            /** Format: date */
-            dateDCR?: string;
             appelOffre: string;
             periode: string;
-            codePostal: string;
+            nomProjet: string;
+            siteDeProduction: components["schemas"]["Addresse"];
+            /**
+             * Format: date
+             * @description La date où le projet a été notifié
+             */
+            dateNotification: string;
+            /**
+             * @description L'identifiant du gestionnaire de réseau gérant le raccordement du projet.
+             *     Tous les dossiers d'un même projet sont gérés par le même gestionnaire de réseau.
+             */
+            identifiantGestionnaireReseau: string;
+            /**
+             * @description La référence du dossier de raccordement.
+             *     Un projet peut avoir plusieurs dossiers de raccordement (une ligne = un dossier)
+             */
+            referenceDossierRaccordement: string;
+            /**
+             * Format: date
+             * @description La date de qualification de la Demande Complète de Raccordement.
+             */
+            dateDCR?: string;
             /** Format: float */
             prix: number;
             coefficientKChoisi: boolean;
