@@ -15,6 +15,7 @@
     "useIgnoreFile": true
   },
   "formatter": {
-    "useEditorconfig": true
+    "useEditorconfig": true,
+    "includes": ["src/**/*", "!src/potentiel-api.d.ts"]
   }
 }

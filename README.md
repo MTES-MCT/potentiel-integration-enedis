@@ -21,6 +21,21 @@ Cette intégration effectue les tâches suivantes
 
 ```bash
 npm run build
-npm run start:export
+npm run start:export 
+# ou pour un export local, sans S3
+npm run start:export --local
+
 npm run start:import
+# ou pour un import local, sans S3
+npm run start:import --filename FILENAME
 ```
+
+
+## Contribution
+
+Le client d'API est automatiquement généré depuis le [schema Open API de Potentiel](https://potentiel.beta.gouv.fr/api/doc). 
+
+En cas d'évolution du schema, regénérer le client :
+- soit depuis l'application en local si les changements ne sont pas publiés : `npm run codegen`
+- soit depuis la production `npx openapi-typescript https://potentiel.beta.gouv.fr/api/openapi -o ./src/potentiel-api.d.ts`
+

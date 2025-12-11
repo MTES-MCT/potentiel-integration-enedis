@@ -1,5 +1,6 @@
 import { basename, dirname, join } from "node:path";
 import { S3 } from "@aws-sdk/client-s3";
+import { getLogger } from "../logger.js";
 
 export type GetS3ClientProps = {
   accessKey: string;
@@ -27,7 +28,12 @@ export async function getS3Client({
     forcePathStyle: true,
   });
 
-  await s3Client.headBucket({ Bucket: bucketName });
+  try {
+    await s3Client.headBucket({ Bucket: bucketName });
+  } catch (error) {
+    getLogger().error("Cannot find S3 bucket", { bucketName, endpoint, error });
+    throw error;
+  }
 
   return {
     upload: async (filename: string, data: string) => {

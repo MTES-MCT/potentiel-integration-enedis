@@ -96,10 +96,14 @@ export class Export extends Command {
       `🗂️ Ce fichier sera uploadé ${flags.local ? "localement" : "sur S3"}`,
     );
 
-    const dossiers = await this.apiClient.raccordement.getAllDossiers({
-      inclureDossierManquant: flags.inclureDossierManquant,
-      inclureDossierEnService: flags.inclureDossierEnService,
-    });
+    const dossiers = await this.apiClient.raccordement.getDossiers(
+      flags.inclureDossierEnService,
+    );
+    if (flags.inclureDossierManquant) {
+      const dossiersManquants =
+        await this.apiClient.raccordement.getDossiersManquants();
+      dossiers.push(...dossiersManquants);
+    }
 
     if (dossiers.length === 0) {
       logger.info("⛔ Aucun dossier de raccordement à traiter");
@@ -108,7 +112,22 @@ export class Export extends Command {
     logger.info(`📁 ${dossiers.length} dossiers en attente`);
     const csvData = await getDataAsCsv({
       data: dossiers.map((dossier) => ({
-        ...dossier,
+        nomProjet: dossier.nomProjet,
+        identifiantProjet: dossier.identifiantProjet,
+        appelOffre: dossier.appelOffre,
+        periode: dossier.periode,
+        famille: dossier.famille,
+        numeroCRE: dossier.numeroCRE,
+        commune: dossier.commune,
+        codePostal: dossier.codePostal,
+        referenceDossier: dossier.referenceDossier,
+        statutDGEC: dossier.statutDGEC,
+        puissance: dossier.puissance,
+        nomCandidat: dossier.nomCandidat,
+        sociétéMère: dossier.sociétéMère,
+        emailContact: dossier.emailContact,
+        siteProduction: dossier.siteProduction,
+        dateNotification: dossier.dateNotification,
 
         // Champs à remplir
         dateMiseEnService: "",
