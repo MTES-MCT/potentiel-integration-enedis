@@ -1,4 +1,5 @@
 import { Command, Flags } from "@oclif/core";
+
 import { type ApiClient, getApiClient } from "../lib/api/client.js";
 import { parseConfig } from "../lib/config.js";
 import { getDataAsCsv } from "../lib/csv.js";
@@ -6,8 +7,8 @@ import { getLocalFileWriter } from "../lib/files/local.js";
 import { getS3Client } from "../lib/files/s3.js";
 import type { FileWriter } from "../lib/files/type.js";
 import {
-  type HealtcheckClient,
   getHealthcheckClient,
+  type HealtcheckClient,
 } from "../lib/healthcheck.js";
 import { getLogger } from "../lib/logger.js";
 
@@ -117,6 +118,7 @@ export class Export extends Command {
     });
 
     const date = new Date().toISOString().slice(0, 10);
+    // biome-ignore lint/suspicious/noTemplateCurlyInString: the format is intended
     const filename = this.uploadFilePathTemplate.replace("${date}", date);
     await this.fileWriter.upload(filename, csvData);
     logger.info(`🛎️ Fichier créé: ${filename}`);

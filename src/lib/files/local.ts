@@ -1,5 +1,4 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path, { dirname } from "node:path";
 import type { FileReader, FileWriter } from "./type.js";
 
