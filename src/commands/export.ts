@@ -71,7 +71,7 @@ export class Export extends Command {
 
   protected async finally(err: Error | undefined) {
     if (err) {
-      await this.healthcheckClient.error();
+      await this.healthcheckClient?.error();
     } else {
       await this.healthcheckClient.success();
     }
