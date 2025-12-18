@@ -71,7 +71,7 @@ export class Export extends Command {
 
   protected async finally(err: Error | undefined) {
     if (err) {
-      await this.healthcheckClient.error();
+      await this.healthcheckClient?.error();
     } else {
       await this.healthcheckClient.success();
     }
@@ -120,15 +120,21 @@ export class Export extends Command {
         periode: dossier.periode,
         famille: dossier.famille,
         numeroCRE: dossier.numeroCRE,
-        commune: dossier.commune,
-        codePostal: dossier.codePostal,
         referenceDossier: dossier.referenceDossier,
-        statutDGEC: dossier.statutDGEC,
+        statutDGEC: dossier.statut,
         puissance: dossier.puissance,
         nomCandidat: dossier.nomCandidat,
-        sociétéMère: dossier.sociétéMère,
+        sociétéMère: dossier.societeMere,
         emailContact: dossier.emailContact,
-        siteProduction: dossier.siteProduction,
+        commune: dossier.siteDeProduction.commune,
+        codePostal: dossier.siteDeProduction.codePostal,
+        siteProduction: [
+          dossier.siteDeProduction.adresse1,
+          dossier.siteDeProduction.adresse2,
+          dossier.siteDeProduction.codePostal,
+          dossier.siteDeProduction.commune,
+          `(${dossier.siteDeProduction.departement}, ${dossier.siteDeProduction.region})`,
+        ].join(" "),
         dateNotification: dossier.dateNotification,
 
         // Champs à remplir
