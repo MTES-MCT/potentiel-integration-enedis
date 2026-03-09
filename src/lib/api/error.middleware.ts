@@ -1,11 +1,21 @@
 import type { Middleware } from "openapi-fetch";
 import { getLogger } from "../logger.js";
+import { ApiError } from "./error.js";
 
 export const errorMiddleware: Middleware = {
-  onResponse({ response }) {
+  async onResponse({ response }) {
     if (!response.ok) {
-      throw new Error(
-        `${response.url}: ${response.status} ${response.statusText}`,
+      let errorBody: unknown;
+      try {
+        errorBody = await response.json();
+      } catch {
+        errorBody = undefined;
+      }
+      throw new ApiError(
+        isErrorBody(errorBody) ? errorBody.error : response.statusText,
+        response.status,
+        response.url,
+        errorBody,
       );
     }
   },
@@ -13,4 +23,13 @@ export const errorMiddleware: Middleware = {
     getLogger().error("API request failed", { error, schemaPath, params });
     return new Error(`Oops, fetch failed : ${schemaPath}`, { cause: error });
   },
+};
+
+const isErrorBody = (body: unknown): body is { error: string } => {
+  return (
+    !!body &&
+    typeof body === "object" &&
+    "error" in body &&
+    typeof body.error === "string"
+  );
 };

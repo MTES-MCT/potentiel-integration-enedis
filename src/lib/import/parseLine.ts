@@ -1,6 +1,9 @@
 import { z } from "zod";
 
-const optionalDateInFrench = z
+/**
+ * DD/MM/YYYY ou YYYY-MM-DD ou vide
+ **/
+const optionalDateSchema = z
   .string()
   .optional()
   .transform((val) =>
@@ -8,21 +11,24 @@ const optionalDateInFrench = z
       ? new Date(val.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1")) // 31/12/2020 => 2020-12-31
       : undefined,
   );
-const dateInFrench = z.string().transform(
+/**
+ * DD/MM/YYYY ou YYYY-MM-DD
+ **/
+const dateSchema = z.string().transform(
   (val) => new Date(val.replace(/(\d{2})\/(\d{2})\/(\d{4})/, "$3-$2-$1")), // 31/12/2020 => 2020-12-31
 );
 
 const schemaDossierExistant = z.object({
   identifiantProjet: z.string().min(1),
   referenceDossier: z.string().min(1),
-  dateMiseEnService: optionalDateInFrench,
+  dateMiseEnService: optionalDateSchema,
   nouvelleReference: z.string().optional(),
 });
 const schemaNouveauDossier = z.object({
   identifiantProjet: z.string().min(1),
   nouvelleReference: z.string().optional(),
-  dateAccuseReception: dateInFrench,
-  dateMiseEnService: optionalDateInFrench,
+  dateAccuseReception: dateSchema,
+  dateMiseEnService: optionalDateSchema,
 });
 
 export const parseLine = (row: unknown) => {

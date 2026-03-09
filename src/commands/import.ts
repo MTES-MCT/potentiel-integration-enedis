@@ -1,6 +1,5 @@
 import { Command, Flags } from "@oclif/core";
 import { type ApiClient, getApiClient } from "../lib/api/client.js";
-import { ApiError } from "../lib/api/error.js";
 import { parseConfig } from "../lib/config.js";
 import { getCsvAsData } from "../lib/csv.js";
 import { getLocalFileReader } from "../lib/files/local.js";
@@ -112,16 +111,7 @@ export abstract class Import extends Command {
 
           mergeStats({ stats: statsImport, into: stats });
         } catch (error) {
-          if (
-            error instanceof ApiError &&
-            error.type === "DATE_MISE_EN_SERVICE_DEJA_TRANSMISE"
-          ) {
-            this.logger.info("Date déja transmise", {
-              identifiantProjet: parsed.data.identifiantProjet,
-            });
-            stats.nbDatesDejaTransmises++;
-            continue;
-          }
+          const message = (error as Error).message;
           errors.push(parsed.data);
           this.logger.warn("❗ Erreur lors de l'import", {
             identifiantProjet: parsed.data.identifiantProjet,
@@ -129,7 +119,7 @@ export abstract class Import extends Command {
               parsed.type === "dossier-existant"
                 ? parsed.data.referenceDossier
                 : parsed.data.nouvelleReference,
-            error: (error as Error).message,
+            error: message,
           });
         }
       }

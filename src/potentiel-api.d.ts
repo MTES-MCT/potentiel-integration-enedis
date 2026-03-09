@@ -38,7 +38,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/laureats/{identifiantProjet}/raccordements/{reference}/date-mise-en-service:transmettre": {
+    "/laureats/{identifiantProjet}/raccordements/{reference}/mise-en-service": {
         parameters: {
             query?: never;
             header?: never;
@@ -52,31 +52,19 @@ export interface paths {
          *
          *     _NB: un projet peut avoir plusieurs dossiers de raccordement._
          */
-        post: operations["Raccordement_transmettreDateMiseEnService"];
+        post: operations["Raccordement_transmettreMiseEnService"];
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * @description Transmet la date de mise en service pour un dossier de raccordement.
+         *
+         *     _NB: un projet peut avoir plusieurs dossiers de raccordement._
+         */
+        patch: operations["Raccordement_modifierMiseEnService"];
         trace?: never;
     };
-    "/laureats/{identifiantProjet}/raccordements/{reference}/reference:modifier": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description Modifie la référence du dossier de raccordement */
-        post: operations["Raccordement_modifierReference"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/laureats/{identifiantProjet}/raccordements/demande-complete-raccordement:transmettre": {
+    "/laureats/{identifiantProjet}/raccordements/demande-complete-raccordement": {
         parameters: {
             query?: never;
             header?: never;
@@ -91,6 +79,23 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/laureats/{identifiantProjet}/raccordements/{reference}/demande-complete-raccordement": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Modifie la demande complète de raccordement */
+        patch: operations["Raccordement_modifierDemandeCompl\u00E8te"];
         trace?: never;
     };
     "/achevements/a-transmettre": {
@@ -185,17 +190,21 @@ export interface components {
         Error: {
             message: string;
         };
-        TransmettreDateMiseEnServiceBody: {
+        MiseEnServiceBody: {
             /** Format: date */
             dateMiseEnService: string;
         };
-        ModifierReferenceBody: {
-            nouvelleReference: string;
+        MiseEnServiceBodyMergePatchCreateOrUpdate: {
+            /** Format: date */
+            dateMiseEnService?: string;
         };
         TransmettreDemandeCompleteRaccordementBody: {
             reference: string;
             /** Format: date */
             dateAccuseReception: string;
+        };
+        ModifierDemandeCompleteBodyMergePatchCreateOrUpdate: {
+            nouvelleReference?: string;
         };
         ProjetAvecAchevementATransmettre: {
             identifiantProjet: string;
@@ -223,9 +232,23 @@ export interface components {
              * @description La date de qualification de la Demande Complète de Raccordement.
              */
             dateDCR?: string;
-            /** Format: float */
+            /**
+             * Format: float
+             * @description Prix de vente, en € par MWh
+             */
             prix: number;
+            /** @description Indique si le porteur de projet a choisi d'appliquer le coefficient K, afin d'indexer le prix sur l'inflation */
             coefficientKChoisi: boolean;
+            /**
+             * Format: float
+             * @description Puissance actuelle du projet, en MW
+             */
+            puissance: number;
+            /**
+             * Format: float
+             * @description Puissance du projet à la candidature, en MW
+             */
+            puissanceInitiale: number;
         };
         TransmettreDateAchevementBody: {
             /** Format: date */
@@ -233,7 +256,11 @@ export interface components {
         };
     };
     responses: never;
-    parameters: never;
+    parameters: {
+        "DossierRaccordementParameters.identifiantProjet": string;
+        "DossierRaccordementParameters.reference": string;
+        LaureatParameters: string;
+    };
     requestBodies: never;
     headers: never;
     pathItems: never;
@@ -316,19 +343,19 @@ export interface operations {
             };
         };
     };
-    Raccordement_transmettreDateMiseEnService: {
+    Raccordement_transmettreMiseEnService: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                identifiantProjet: string;
-                reference: string;
+                identifiantProjet: components["parameters"]["DossierRaccordementParameters.identifiantProjet"];
+                reference: components["parameters"]["DossierRaccordementParameters.reference"];
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["TransmettreDateMiseEnServiceBody"];
+                "application/json": components["schemas"]["MiseEnServiceBody"];
             };
         };
         responses: {
@@ -350,19 +377,19 @@ export interface operations {
             };
         };
     };
-    Raccordement_modifierReference: {
+    Raccordement_modifierMiseEnService: {
         parameters: {
             query?: never;
             header?: never;
             path: {
-                identifiantProjet: string;
-                reference: string;
+                identifiantProjet: components["parameters"]["DossierRaccordementParameters.identifiantProjet"];
+                reference: components["parameters"]["DossierRaccordementParameters.reference"];
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["ModifierReferenceBody"];
+                "application/merge-patch+json": components["schemas"]["MiseEnServiceBodyMergePatchCreateOrUpdate"];
             };
         };
         responses: {
@@ -389,13 +416,47 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                identifiantProjet: string;
+                identifiantProjet: components["parameters"]["LaureatParameters"];
             };
             cookie?: never;
         };
         requestBody: {
             content: {
                 "application/json": components["schemas"]["TransmettreDemandeCompleteRaccordementBody"];
+            };
+        };
+        responses: {
+            /** @description The request has succeeded. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An unexpected error response. */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Error"];
+                };
+            };
+        };
+    };
+    "Raccordement_modifierDemandeCompl\u00E8te": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                identifiantProjet: components["parameters"]["DossierRaccordementParameters.identifiantProjet"];
+                reference: components["parameters"]["DossierRaccordementParameters.reference"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/merge-patch+json": components["schemas"]["ModifierDemandeCompleteBodyMergePatchCreateOrUpdate"];
             };
         };
         responses: {
