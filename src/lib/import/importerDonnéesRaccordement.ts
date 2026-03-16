@@ -1,4 +1,5 @@
 import type { ApiClient } from "../api/client.js";
+import { ApiError } from "../api/error.js";
 import { getLogger } from "../logger.js";
 import { createStats } from "../stats.js";
 import type { LineData } from "./parseLine.js";
@@ -23,7 +24,9 @@ export async function importerDonnéesDossierRaccordement(
     };
     logger.info("🖊  Modification de la référence...", payload);
 
-    await apiClient.raccordement.modifierReferenceDossier(payload);
+    await apiClient.raccordement.demandeComplèteDeRaccordement.modifier(
+      payload,
+    );
     logger.info("🖊  Référence modifiée", { identifiantProjet });
     stats.référencesModifiées++;
 
@@ -38,7 +41,7 @@ export async function importerDonnéesDossierRaccordement(
       dateAccuseReception: data.dateAccuseReception,
     };
     logger.info("➕ Transmission d'un nouveau dossier", payload);
-    await apiClient.raccordement.transmettreDemandeCompleteDeRaccordement(
+    await apiClient.raccordement.demandeComplèteDeRaccordement.transmettre(
       payload,
     );
     logger.info("➕ Dossier transmis", { identifiantProjet });
@@ -61,10 +64,72 @@ export async function importerDonnéesDossierRaccordement(
     };
     logger.info("🗓  Transmission de la date de MES...", payload);
 
-    await apiClient.raccordement.transmettreDateDeMiseEnService(payload);
-    logger.info("🗓  Date transmise...", { identifiantProjet });
-
-    stats.nbDatesTransmises++;
+    const result = await transmettreOuModifierDateMiseEnService(
+      apiClient,
+      payload,
+    );
+    switch (result) {
+      case "transmise":
+        stats.nbDatesTransmises++;
+        break;
+      case "modifiée":
+        stats.nbDatesModifiees++;
+        break;
+      case "pas de changement":
+        stats.nbDatesIdentiques++;
+        break;
+      default: {
+        // This should never happen - all cases are handled above
+        const _exhaustiveCheck: never = result;
+        throw new Error(`Résultat inattendu: ${_exhaustiveCheck}`);
+      }
+    }
   }
   return stats;
+}
+
+async function transmettreOuModifierDateMiseEnService(
+  apiClient: ApiClient,
+  payload: {
+    identifiantProjet: string;
+    référence: string;
+    dateMiseEnService: Date;
+  },
+) {
+  const logger = getLogger();
+  const { identifiantProjet, référence, dateMiseEnService } = payload;
+
+  try {
+    await apiClient.raccordement.miseEnService.transmettre(payload);
+    logger.info("🗓  Date transmise", { identifiantProjet });
+    return "transmise";
+  } catch (error) {
+    if (!ApiError.match(error, 400, /a déjà été transmise/)) {
+      throw error;
+    }
+  }
+
+  logger.info("🗓  Date déjà transmise, tentative de modification...", {
+    identifiantProjet,
+  });
+
+  try {
+    await apiClient.raccordement.miseEnService.modifier({
+      identifiantProjet,
+      référence,
+      dateMiseEnService,
+    });
+    logger.info("🗓  Date modifiée", { identifiantProjet });
+    return "modifiée";
+  } catch (error) {
+    if (!ApiError.match(error, 400, /Aucune modification/)) {
+      throw error;
+    }
+  }
+
+  logger.info(
+    "🗓  Date déjà transmise et identique, aucune modification nécessaire",
+    { identifiantProjet },
+  );
+  return "pas de changement";
 }

@@ -3,6 +3,7 @@ import createClient from "openapi-fetch";
 import type { components, paths } from "../../potentiel-api.js";
 
 import { createAuthMiddleware } from "./auth.js";
+import { contentTypeMiddleware } from "./contentType.middleware.js";
 import { errorMiddleware } from "./error.middleware.js";
 import { fetchAllItems } from "./fetchAllItems.js";
 
@@ -31,6 +32,8 @@ export type TransmettreDemandeCompleteDeRaccordementProps = {
   dateAccuseReception: Date;
 };
 
+const formatToDateOnly = (date: Date) => date.toISOString().slice(0, 10);
+
 export async function getApiClient({
   apiUrl,
   clientId,
@@ -48,6 +51,7 @@ export async function getApiClient({
   });
 
   client.use(authMiddleware);
+  client.use(contentTypeMiddleware);
   client.use(errorMiddleware);
 
   return {
@@ -73,53 +77,69 @@ export async function getApiClient({
             }),
           getId: (item) => item.identifiantProjet,
         }),
-      transmettreDateDeMiseEnService: (
-        props: TransmettreDateDeMiseEnServiceProps,
-      ) =>
-        client.POST(
-          "/laureats/{identifiantProjet}/raccordements/{reference}/date-mise-en-service:transmettre",
-          {
-            body: {
-              dateMiseEnService: props.dateMiseEnService
-                .toISOString()
-                .slice(0, 10),
-            },
-            params: {
-              path: {
-                identifiantProjet: props.identifiantProjet,
-                reference: props.référence,
+      miseEnService: {
+        transmettre: (props: TransmettreDateDeMiseEnServiceProps) =>
+          client.POST(
+            "/laureats/{identifiantProjet}/raccordements/{reference}/mise-en-service",
+            {
+              body: {
+                dateMiseEnService: formatToDateOnly(props.dateMiseEnService),
+              },
+              params: {
+                path: {
+                  identifiantProjet: props.identifiantProjet,
+                  reference: props.référence,
+                },
               },
             },
-          },
-        ),
-      modifierReferenceDossier: (props: ModifierReferenceDossierProps) =>
-        client.POST(
-          "/laureats/{identifiantProjet}/raccordements/{reference}/reference:modifier",
-          {
-            body: { nouvelleReference: props.nouvelleReference },
-            params: {
-              path: {
-                identifiantProjet: props.identifiantProjet,
-                reference: props.référence,
+          ),
+        modifier: (props: TransmettreDateDeMiseEnServiceProps) =>
+          client.PATCH(
+            "/laureats/{identifiantProjet}/raccordements/{reference}/mise-en-service",
+            {
+              body: {
+                dateMiseEnService: formatToDateOnly(props.dateMiseEnService),
+              },
+              params: {
+                path: {
+                  identifiantProjet: props.identifiantProjet,
+                  reference: props.référence,
+                },
               },
             },
-          },
-        ),
-      transmettreDemandeCompleteDeRaccordement: (
-        props: TransmettreDemandeCompleteDeRaccordementProps,
-      ) =>
-        client.POST(
-          "/laureats/{identifiantProjet}/raccordements/demande-complete-raccordement:transmettre",
-          {
-            body: {
-              dateAccuseReception: props.dateAccuseReception
-                .toISOString()
-                .slice(0, 10),
-              reference: props.référence,
+          ),
+      },
+      demandeComplèteDeRaccordement: {
+        transmettre: (props: TransmettreDemandeCompleteDeRaccordementProps) =>
+          client.POST(
+            "/laureats/{identifiantProjet}/raccordements/demande-complete-raccordement",
+            {
+              body: {
+                dateAccuseReception: formatToDateOnly(
+                  props.dateAccuseReception,
+                ),
+                reference: props.référence,
+              },
+              params: { path: { identifiantProjet: props.identifiantProjet } },
             },
-            params: { path: { identifiantProjet: props.identifiantProjet } },
-          },
-        ),
+          ),
+
+        modifier: (props: ModifierReferenceDossierProps) =>
+          client.PATCH(
+            "/laureats/{identifiantProjet}/raccordements/{reference}/demande-complete-raccordement",
+            {
+              body: {
+                nouvelleReference: props.nouvelleReference,
+              },
+              params: {
+                path: {
+                  identifiantProjet: props.identifiantProjet,
+                  reference: props.référence,
+                },
+              },
+            },
+          ),
+      },
     },
   };
 }
