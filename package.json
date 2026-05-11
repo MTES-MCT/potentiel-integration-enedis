@@ -36,7 +36,7 @@
     "typescript": "5.9.3"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "3.815.0",
+    "@aws-sdk/client-s3": "3.1045.0",
     "@json2csv/plainjs": "7.0.6",
     "@oclif/core": "4.8.0",
     "csv-parse": "5.5.6",
