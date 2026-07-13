@@ -141,6 +141,21 @@ export async function getApiClient({
           ),
       },
     },
+    achèvement: {
+      transmettreDate: (props: {
+        identifiantProjet: string;
+        dateAchèvement: Date;
+      }) =>
+        client.POST(
+          "/laureats/{identifiantProjet}/achevement/date-achevement",
+          {
+            body: {
+              dateAchevement: props.dateAchèvement.toISOString().slice(0, 10),
+            },
+            params: { path: { identifiantProjet: props.identifiantProjet } },
+          },
+        ),
+    },
   };
 }
 

@@ -14,12 +14,16 @@ export const getDataAsCsv = async <TRaw extends object>({
   return csvParser.parse(data);
 };
 
-export const getCsvAsData = (data: string): unknown[] => {
+export const getCsvAsData = (
+  data: string,
+  options?: csv2json.Options,
+): unknown[] => {
   return csv2json.parse(data, {
     delimiter,
     encoding: "utf-8",
     skipEmptyLines: true,
     skipRecordsWithEmptyValues: true,
     columns: true,
+    ...options,
   });
 };
