@@ -27,25 +27,25 @@
     "url": "git+https://github.com/MTES-MCT/potentiel.git"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.0",
-    "@tsconfig/node24": "24.0.3",
-    "@types/node": "22.9.0",
-    "lefthook": "1.8.5",
-    "openapi-typescript": "7.10.1",
-    "tsx": "4.22.4",
-    "typescript": "5.9.3"
+    "@biomejs/biome": "2.6.7",
+    "@tsconfig/node26": "26.0.2",
+    "@types/node": "26.6.6",
+    "lefthook": "2.2.2",
+    "openapi-typescript": "7.13.0",
+    "tsx": "4.23.15",
+    "typescript": "7.0.2"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1045.0",
     "@json2csv/plainjs": "7.0.6",
-    "@oclif/core": "4.8.0",
-    "csv-parse": "5.5.6",
+    "@oclif/core": "^5.1.12",
+    "csv-parse": "^7.0.3",
     "dotenv": "16.4.5",
-    "oclif": "4.22.54",
+    "oclif": "^6.0.15",
     "openapi-fetch": "0.15.0",
     "openid-client": "6.1.3",
     "winston": "3.17.0",
-    "zod": "3.23.8"
+    "zod": "4.6.7"
   },
   "bin": {
     "potentiel-integration-enedis": "./bin/run.js"
@@ -57,6 +57,9 @@
     "topicSeparator": " "
   },
   "engines": {
-    "node": "24.10.0"
+    "node": "^26.13.0"
+  },
+  "overrides": {
+    "typescript": "7.0.2"
   }
 }
