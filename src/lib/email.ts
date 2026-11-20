@@ -2,7 +2,7 @@ import { getLogger } from "./logger.js";
 
 const MAILJET_API_URL = "https://api.mailjet.com/v3.1/send";
 
-type SendEmailNotificationsForAvailableFileProps = {
+export type SendEmailNotificationsForAvailableFileProps = {
   username: string;
   password: string;
   templateId: number;

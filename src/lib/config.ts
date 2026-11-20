@@ -1,5 +1,6 @@
 import { config } from "dotenv";
 import { z } from "zod";
+import type { SendEmailNotificationsForAvailableFileProps } from "./email.js";
 
 export const parseConfig = (env = process.env) => {
   const configSchema = z.object({
@@ -19,21 +20,34 @@ export const parseConfig = (env = process.env) => {
     UPLOAD_FILE_PATH_TEMPLATE: z.string(),
     DOWNLOAD_FOLDER: z.string(),
 
-    // Emails
-    MJ_APIKEY_PUBLIC: z.string().optional(),
-    MJ_APIKEY_PRIVATE: z.string().optional(),
-    MJ_TEMPLATE_ID: z.coerce.number().optional(),
-
-    EMAIL_RECIPIENTS: z
-      .string()
-      .optional()
-      .transform((val) => (val ? val.split(",") : undefined))
-      .pipe(z.string().trim().email().array().optional()),
-
     // Healthcheck
     SENTRY_CRONS_IMPORT: z.string().url().optional(),
     SENTRY_CRONS_EXPORT: z.string().url().optional(),
   });
   config();
   return configSchema.parse(env);
+};
+
+export const parseEmailConfig = (
+  env = process.env,
+): SendEmailNotificationsForAvailableFileProps | undefined => {
+  const emailConfigSchema = z.object({
+    MJ_APIKEY_PUBLIC: z.string(),
+    MJ_APIKEY_PRIVATE: z.string(),
+    MJ_TEMPLATE_ID: z.coerce.number(),
+    EMAIL_RECIPIENTS: z
+      .string()
+      .transform((val) => (val ? val.split(",") : undefined))
+      .pipe(z.string().trim().email().array().optional()),
+  });
+  const result = emailConfigSchema.safeParse(env);
+  if (!result.success) {
+    return undefined;
+  }
+  return {
+    password: result.data.MJ_APIKEY_PRIVATE,
+    username: result.data.MJ_APIKEY_PUBLIC,
+    templateId: result.data.MJ_TEMPLATE_ID,
+    recipients: result.data.EMAIL_RECIPIENTS ?? [],
+  };
 };

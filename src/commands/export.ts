@@ -1,8 +1,12 @@
 import { Command, Flags } from "@oclif/core";
 
 import { type ApiClient, getApiClient } from "../lib/api/client.js";
-import { parseConfig } from "../lib/config.js";
+import { parseConfig, parseEmailConfig } from "../lib/config.js";
 import { getDataAsCsv } from "../lib/csv.js";
+import {
+  type SendEmailNotificationsForAvailableFileProps,
+  sendEmailNotificationsForAvailableFile,
+} from "../lib/email.js";
 import { getLocalFileWriter } from "../lib/files/local.js";
 import { getS3Client } from "../lib/files/s3.js";
 import type { FileWriter } from "../lib/files/type.js";
@@ -17,6 +21,7 @@ export class Export extends Command {
   private fileWriter!: FileWriter;
   private uploadFilePathTemplate!: string;
   private healthcheckClient!: HealtcheckClient;
+  private emailConfig?: SendEmailNotificationsForAvailableFileProps;
 
   static description =
     "Génère un fichier CSV sur S3 (ou local si le flag --local est utilisé) contenant les dossiers de raccordements sans date de mise en service";
@@ -65,6 +70,8 @@ export class Export extends Command {
         });
 
     this.uploadFilePathTemplate = config.UPLOAD_FILE_PATH_TEMPLATE;
+
+    this.emailConfig = parseEmailConfig();
 
     await this.healthcheckClient.start();
   }
@@ -149,5 +156,14 @@ export class Export extends Command {
     const filename = this.uploadFilePathTemplate.replace("${date}", date);
     await this.fileWriter.upload(filename, csvData);
     logger.info(`🛎️ Fichier créé: ${filename}`);
+
+    if (this.emailConfig) {
+      await sendEmailNotificationsForAvailableFile(this.emailConfig);
+      logger.info("📧 Notification par email envoyée");
+    } else {
+      logger.warn(
+        "⚠️ Aucune configuration email trouvée, notification non envoyée",
+      );
+    }
   }
 }
