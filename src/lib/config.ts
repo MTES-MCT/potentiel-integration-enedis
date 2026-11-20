@@ -32,8 +32,8 @@ export const parseEmailConfig = (
   env = process.env,
 ): SendEmailNotificationsForAvailableFileProps | undefined => {
   const emailConfigSchema = z.object({
-    MJ_APIKEY_PUBLIC: z.string(),
-    MJ_APIKEY_PRIVATE: z.string(),
+    MJ_APIKEY_PUBLIC: z.string().nonempty(),
+    MJ_APIKEY_PRIVATE: z.string().nonempty(),
     MJ_TEMPLATE_ID: z.coerce.number(),
     EMAIL_RECIPIENTS: z
       .string()
