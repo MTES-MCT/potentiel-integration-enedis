@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/reseaux/raccordements": {
+    "/raccordements": {
         parameters: {
             query?: never;
             header?: never;
@@ -21,7 +21,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/reseaux/raccordements/manquants": {
+    "/raccordements/manquants": {
         parameters: {
             query?: never;
             header?: never;
