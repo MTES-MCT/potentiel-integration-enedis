@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "codegen": "openapi-typescript http://localhost:3000/api/openapi -o ./src/potentiel-api.d.ts",
+    "codegen": "openapi-typesafe http://localhost:3000/api/openapi -o ./src/potentiel-api.d.ts",
     "build": "tsc",
     "lint": "npx @biomejs/biome check --fix ./src",
     "lint:check": "npx @biomejs/biome check --no-errors-on-unmatched --files-ignore-unknown=true --colors=off",
@@ -31,7 +31,7 @@
     "@tsconfig/node26": "26.0.2",
     "@types/node": "26.6.6",
     "lefthook": "2.2.2",
-    "openapi-typescript": "7.13.0",
+    "openapi-typesafe": "1.0.0-rc.16",
     "tsx": "4.23.15",
     "typescript": "7.0.2"
   },
