@@ -57,7 +57,9 @@ export async function getApiClient({
   return {
     raccordement: {
       getDossiers: (avecDateMiseEnService: boolean) =>
-        fetchAllItems<components["schemas"]["DossierRaccordement"]>({
+        fetchAllItems<
+          components["schemas"]["Raccordement.DossierRaccordement"]
+        >({
           fetchPage: (after?: number) =>
             client.GET("/raccordements", {
               params: {
@@ -70,7 +72,9 @@ export async function getApiClient({
           getId: (item) => `${item.identifiantProjet}-${item.referenceDossier}`,
         }),
       getDossiersManquants: () =>
-        fetchAllItems<components["schemas"]["DossierRaccordement"]>({
+        fetchAllItems<
+          components["schemas"]["Raccordement.DossierRaccordement"]
+        >({
           fetchPage: (after?: number) =>
             client.GET("/raccordements/manquants", {
               params: { query: { after } },
